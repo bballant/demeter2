@@ -1,0 +1,10 @@
+[tools]
+node = "22"
+rust = "latest"
+
+
+[env]
+# https://mise.jdx.dev/environments/#env-path
+_.path = [
+       "{{config_root}}/node_modules/.bin",
+]
