@@ -105,14 +105,16 @@ async function filterTransactions_() {
     if (filter.filename !== "All") {
       result = result.filter(tx => tx.filename === filter.filename);
     }
-    if (filter.startDate) {
+    const startDate = filter.startDate;
+    if (startDate) {
       console.log("Filtering from start date:", filter.startDate);
       console.log(result[0]?.date);
-      console.log(result[0]?.date >= filter.startDate);
-      result = result.filter(tx => tx.date >= filter.startDate);
+      console.log(result[0]?.date >= startDate);
+      result = result.filter(tx => tx.date >= startDate);
     }
-    if (filter.endDate) {
-      result = result.filter(tx => tx.date <= filter.endDate);
+    const endDate = filter.endDate;
+    if (endDate) {
+      result = result.filter(tx => tx.date <= endDate);
     }
     transactions = result;
   } catch (error) {
