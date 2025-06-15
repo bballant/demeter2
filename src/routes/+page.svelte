@@ -1,16 +1,12 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import Database from "@tauri-apps/plugin-sql";
+  import type { Transaction } from '$lib/types';
+  import { getTransactions as fetchTransactions, addTransaction as insertTransaction } from '$lib/db';
 
   const DB_URL = "sqlite:demeter2.db";
 
-  type Transaction = {
-    id: number;
-    date: string;
-    description: string;
-    amount: number;
-    filename: string|undefined;
-  };
+  import type { Transaction } from '$lib/types';
 
   let name = $state("");
   let greetMsg = $state("");
@@ -24,7 +20,7 @@
   async function getTransactions() {
     try {
       const db = await Database.load(DB_URL);
-      const transactions = await db.select<Transaction[]>("SELECT * FROM transaction");
+      const transactions = await fetchTransactions(db);
       console.log("Transactions:", transactions);
     } catch (error) {
       console.log(error);
@@ -34,12 +30,7 @@
   async function addTransaction(tx: Omit<Transaction, "id">) {
     try {
       const db = await Database.load(DB_URL);
-      await db.execute("INSERT INTO transaction (date, description, amount, filename) VALUES ($1, $2, $3, $4)", [
-        tx.date,
-        tx.description,
-        tx.amount,
-        tx.filename,
-      ]);
+      await insertTransaction(db, tx);
     } catch (error) {
       console.log(error);
     }
