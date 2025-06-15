@@ -1,7 +1,8 @@
 <script lang="ts">
   import Database from "@tauri-apps/plugin-sql";
   import type { Transaction } from '../lib/types';
-  import { getTransactions,  addTransaction} from '../lib/db';
+  import { onMount } from 'svelte';
+  import { getTransactions, addTransaction } from '../lib/db';
 
   const DB_URL = "sqlite:demeter2.db";
 
@@ -41,6 +42,10 @@
       console.log(error);
     }
   }
+
+  onMount(() => {
+    getTransactions_();
+  });
 
 </script>
 <main class="container">
