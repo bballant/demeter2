@@ -59,6 +59,8 @@ async function deleteByFilter_() {
     );
     const ids = toDelete.map(tx => tx.id);
     await deleteByIds(db, ids);
+    // reset filters after deletion
+    filter = { filename: undefined, startDate: undefined, endDate: undefined };
     await getTransactions_();
     await loadFilenames_();
   } catch (error) {
