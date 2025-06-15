@@ -177,7 +177,7 @@ function toggleSort(by: SortBy) {
     >
       Analysis
     </button>
-    <a href="#" onclick={() => (showAbout = true)} style="margin-left: auto;">About</a>
+    <button type="button" onclick={() => (showAbout = true)} style="margin-left: auto;">About</button>
   </div>
   <table>
     <thead>
