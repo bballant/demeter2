@@ -12,3 +12,7 @@ export async function addTransaction(db: any, tx: Omit<Transaction, "id">): Prom
     tx.filename,
   ]);
 }
+
+export async function deleteAllTransactions(db: any): Promise<void> {
+  await db.execute("DELETE FROM txn");
+}

@@ -2,7 +2,7 @@
   import Database from "@tauri-apps/plugin-sql";
   import type { Transaction } from '../lib/types';
   import { onMount } from 'svelte';
-  import { getTransactions, addTransaction } from '../lib/db';
+  import { getTransactions, addTransaction, deleteAllTransactions } from '../lib/db';
 
   const DB_URL = "sqlite:demeter2.db";
 
@@ -47,11 +47,22 @@
     getTransactions_();
   });
 
+async function deleteAllTransactions_() {
+  try {
+    const db = await Database.load(DB_URL);
+    await deleteAllTransactions(db);
+    await getTransactions_();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 </script>
 <main class="container">
   <div class="button-row">
     <button onclick={() => addTransaction_({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
     <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
+      <button onclick={deleteAllTransactions_}>Delete All Transactions</button>
   </div>
   <table>
     <thead>
