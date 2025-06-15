@@ -10,6 +10,8 @@
   let filenames: string[] = [];
   let selectedFilename: string = "All";
   let fileInput: HTMLInputElement;
+  let startDate: string = "";
+  let endDate: string = "";
 
   async function getTransactions_() {
     try {
@@ -96,6 +98,8 @@ async function filterTransactions_() {
 </script>
 <main class="container">
   <div class="button-row">
+    <input type="date" bind:value={startDate} />
+    <input type="date" bind:value={endDate} />
     <select bind:value={selectedFilename} onchange={filterTransactions_}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
