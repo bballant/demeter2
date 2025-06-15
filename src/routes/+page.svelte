@@ -9,6 +9,7 @@
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
   let selectedFilename: string = "All";
+  let fileInput: HTMLInputElement;
 
   async function getTransactions_() {
     try {
@@ -75,10 +76,20 @@ async function deleteByFilename_() {
   }
 }
 
+async function handleCSVUpload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  const text = await file.text();
+  const header = text.split("\n")[0];
+  console.log("CSV Header:", header);
+}
+
 </script>
 <main class="container">
   <div class="button-row">
-    <button onclick={() => addTransaction_({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
+    <button on:click={() => fileInput.click()}>Upload CSV</button>
+    <input type="file" accept=".csv" bind:this={fileInput} on:change={handleCSVUpload} style="display:none" />
     <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
     <select bind:value={selectedFilename}>
       <option value="All">All</option>
