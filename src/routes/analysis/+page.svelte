@@ -14,6 +14,9 @@
   let mostExpensive: Transaction | null = null;
   let topDescription = "";
   let topDescriptorCount = 0;
+  let totalSpending = 0;
+  let avgSpending = 0;
+  let medianSpending = 0;
 
   onMount(async () => {
     const url = new URL(window.location.href);
@@ -46,6 +49,16 @@
       .sort((a, b) => b[1] - a[1])[0];
     topDescription = desc;
     topDescriptorCount = count;
+    const spendTxs = txs.filter(t => t.amount < 0);
+    if (spendTxs.length > 0) {
+      totalSpending = spendTxs.reduce((sum, t) => sum + t.amount, 0);
+      avgSpending = totalSpending / spendTxs.length;
+      const sorted = spendTxs.map(t => t.amount).sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      medianSpending = sorted.length % 2 !== 0
+        ? sorted[mid]
+        : (sorted[mid - 1] + sorted[mid]) / 2;
+    }
   });
 
   function formatAmount(cents: number): string {
@@ -75,6 +88,18 @@
       <tr>
         <td class="key-cell">Total transactions</td>
         <td class="value-cell">{totalCount}</td>
+      </tr>
+      <tr>
+        <td class="key-cell">Total spending</td>
+        <td class="value-cell">{formatAmount(totalSpending * 100)}</td>
+      </tr>
+      <tr>
+        <td class="key-cell">Average spending</td>
+        <td class="value-cell">{formatAmount(avgSpending * 100)}</td>
+      </tr>
+      <tr>
+        <td class="key-cell">Median spending</td>
+        <td class="value-cell">{formatAmount(medianSpending * 100)}</td>
       </tr>
       <tr>
         <td class="key-cell">Most expensive</td>
