@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "demeter2",
+  "productName": "Demeter II",
   "version": "0.1.0",
   "identifier": "bballant.demeter2",
   "build": {
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "demeter2",
-        "width": 800,
-        "height": 600
+        "title": "Demeter II",
+        "width": 960,
+        "height": 1080
       }
     ],
     "security": {
