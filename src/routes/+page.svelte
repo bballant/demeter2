@@ -1,5 +1,6 @@
 <script lang="ts">
   import Database from "@tauri-apps/plugin-sql";
+  import { parseCsv } from '../lib/csv';
   import type { Transaction, Filter } from '../lib/types';
   import { onMount } from 'svelte';
   import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
@@ -73,17 +74,10 @@ async function handleCSVUpload(event: Event) {
   const file = input.files?.[0];
   if (!file) return;
   const text = await file.text();
-  const lines = text.split("\n").filter(line => line.trim());
-  // drop header
-  lines.shift();
-  const filenameStr = file.name;
+  const txs = parseCsv(text, file.name);
   const db = await Database.load(DB_URL);
-  for (const line of lines) {
-    const cols = line.split(",");
-    const date = cols[0].replace(/"/g, "");
-    const description = cols[2]?.replace(/"/g, "") || "";
-    const amount = Number(cols[4]?.replace(/"/g, "")) || 0;
-    await addTransaction(db, { date, description, amount, filename: filenameStr });
+  for (const tx of txs) {
+    await addTransaction(db, tx);
   }
   await getTransactions_();
   await loadFilenames_();
