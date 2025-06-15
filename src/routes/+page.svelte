@@ -5,6 +5,13 @@
   import { onMount } from 'svelte';
   import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
 
+  function formatAmount(cents: number): string {
+    const sign = cents < 0 ? '-' : '';
+    const abs = Math.abs(cents);
+    const dollars = (abs / 100).toFixed(2);
+    return `${sign}$${dollars}`;
+  }
+
   const DB_URL = "sqlite:demeter2.db";
 
   let transactions: Transaction[] = [];
@@ -146,7 +153,7 @@ async function filterTransactions_() {
           <td>{tx.id}</td>
           <td>{tx.date}</td>
           <td>{tx.description}</td>
-          <td>{tx.amount}</td>
+          <td>{formatAmount(tx.amount)}</td>
           <td>{tx.filename}</td>
         </tr>
       {/each}

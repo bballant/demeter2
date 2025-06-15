@@ -15,7 +15,7 @@ export function parseCsv(
     const cols = line.split(',');
     const date = cols[0].replace(/"/g, '');
     const description = (cols[2] || '').replace(/"/g, '');
-    const amount = Number((cols[4] || '').replace(/"/g, '')) || 0;
+    const amount = Math.round((Number((cols[4] || '').replace(/"/g, '')) || 0) * 100);
     return { date, description, amount, filename };
   });
 }
