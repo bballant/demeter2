@@ -3,8 +3,8 @@
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  color: #2F4F4F;
+  background-color: #FDF6E3;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -45,25 +45,27 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
+  color: #2F4F4F;
+  background-color: #FFF8DC;
   cursor: pointer;
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-  border-color: #396cd8;
+  border-color: #74C7B8;
 }
 
 button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
+  border-color: #74C7B8;
+  background-color: #E0FFF8;
 }
 
 select {
   border-radius: 0;
   padding: 0.4em 1em;
+  color: #2F4F4F;
+  background-color: #FFF8DC;
 }
 
 /*
