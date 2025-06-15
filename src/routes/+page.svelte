@@ -35,7 +35,7 @@
           date: new Date().toISOString().split("T")[0],
           description: `Sample transaction ${i + 1}`,
           amount: Math.floor(Math.random() * 1000),
-          filename: undefined
+          filename: "sample-transaction"
         });
       }
     } catch (error) {
