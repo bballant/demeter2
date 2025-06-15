@@ -22,6 +22,7 @@
     try {
       const db = await Database.load(DB_URL);
       await addTransaction(db, tx);
+      await getTransactions_();
     } catch (error) {
       console.log(error);
     }
@@ -38,6 +39,7 @@
           filename: "sample-transaction"
         });
       }
+      await getTransactions_();
     } catch (error) {
       console.log(error);
     }
