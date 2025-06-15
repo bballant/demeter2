@@ -55,17 +55,23 @@
   {#if totalCount === 0}
     <p>No transactions match your filter.</p>
   {:else}
-    <ul style="text-align: left;">
-      <li>Total transactions: {totalCount}</li>
-      <li>
-        Most expensive:
-        {mostExpensive.description} — {formatAmount(mostExpensive.amount * 100)}
-        on {mostExpensive.date}
-      </li>
-      <li>
-        Most frequent description: “{topDescription}” ({topDescriptorCount} times)
-      </li>
-    </ul>
+    <table class="analysis-table" style="margin: auto;">
+      <tr>
+        <td class="key-cell">Total transactions:</td>
+        <td class="value-cell">{totalCount}</td>
+      </tr>
+      <tr>
+        <td class="key-cell">Most expensive:</td>
+        <td class="value-cell">
+          {mostExpensive.description} — {formatAmount(mostExpensive.amount * 100)}
+          on {mostExpensive.date}
+        </td>
+      </tr>
+      <tr>
+        <td class="key-cell">Most frequent description:</td>
+        <td class="value-cell">“{topDescription}” ({topDescriptorCount} times)</td>
+      </tr>
+    </table>
   {/if}
   <button onclick={() => (window.location.href = '/')} style="width: auto; align-self: center;">
     Close

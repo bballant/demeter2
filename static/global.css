@@ -68,6 +68,26 @@ select {
   background-color: #FFF8DC;
 }
 
+.analysis-table {
+  width: auto;
+  border-collapse: collapse;
+  margin: 1rem auto;
+}
+
+.analysis-table td {
+  padding: 0.5rem;
+}
+
+.key-cell {
+  text-align: right;
+  background-color: #e0d4c3;
+}
+
+.value-cell {
+  text-align: left;
+  background-color: #f4eee5;
+}
+
 /*
 For now no dark theme
 @media (prefers-color-scheme: dark) {
