@@ -80,7 +80,8 @@ select {
 
 .key-cell {
   text-align: right;
-  background-color: #e0d4c3;
+  background-color: #C5EDE8;
+  font-weight: bold;
 }
 
 .value-cell {

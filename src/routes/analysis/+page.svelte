@@ -4,6 +4,10 @@
   import { getTransactions } from '../../lib/db';
   import type { Transaction } from '../../lib/types';
 
+  let filename: string | undefined;
+  let startDate: string | undefined;
+  let endDate: string | undefined;
+
   const DB_URL = "sqlite:demeter2.db";
 
   let totalCount = 0;
@@ -13,9 +17,9 @@
 
   onMount(async () => {
     const url = new URL(window.location.href);
-    const filename  = url.searchParams.get('filename') || undefined;
-    const startDate = url.searchParams.get('startDate') || undefined;
-    const endDate   = url.searchParams.get('endDate')   || undefined;
+    filename  = url.searchParams.get('filename') || undefined;
+    startDate = url.searchParams.get('startDate') || undefined;
+    endDate   = url.searchParams.get('endDate')   || undefined;
 
     const db = await Database.load(DB_URL);
     let txs = await getTransactions(db);
@@ -52,30 +56,33 @@
 
 <main class="container">
   <h1>Transaction Analysis</h1>
+  <p class="subtitle" style="margin-top:0.5rem; margin-bottom:1rem;">
+    Filters: {filename ?? 'All'} {startDate ? `from ${startDate}` : ''} {endDate ? `to ${endDate}` : ''}
+  </p>
   {#if totalCount === 0}
     <p>No transactions match your filter.</p>
   {:else}
     <table class="analysis-table" style="margin: auto;">
       <tbody>
       <tr>
-        <td class="key-cell">Total transactions:</td>
+        <td class="key-cell">Total transactions</td>
         <td class="value-cell">{totalCount}</td>
       </tr>
       <tr>
-        <td class="key-cell">Most expensive:</td>
+        <td class="key-cell">Most expensive</td>
         <td class="value-cell">
           {mostExpensive.description} — {formatAmount(mostExpensive.amount * 100)}
           on {mostExpensive.date}
         </td>
       </tr>
       <tr>
-        <td class="key-cell">Most frequent description:</td>
+        <td class="key-cell">Most frequent description</td>
         <td class="value-cell">“{topDescription}” ({topDescriptorCount} times)</td>
       </tr>
       </tbody>
     </table>
   {/if}
-  <button onclick={() => (window.location.href = '/')} style="width: auto; align-self: center;">
+  <button onclick={() => (window.location.href = '/')} style="width: auto; align-self: center; margin-top: 1rem;">
     Close
   </button>
 </main>
