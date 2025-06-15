@@ -56,6 +56,7 @@
     <p>No transactions match your filter.</p>
   {:else}
     <table class="analysis-table" style="margin: auto;">
+      <tbody>
       <tr>
         <td class="key-cell">Total transactions:</td>
         <td class="value-cell">{totalCount}</td>
@@ -71,6 +72,7 @@
         <td class="key-cell">Most frequent description:</td>
         <td class="value-cell">“{topDescription}” ({topDescriptorCount} times)</td>
       </tr>
+      </tbody>
     </table>
   {/if}
   <button onclick={() => (window.location.href = '/')} style="width: auto; align-self: center;">
