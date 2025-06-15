@@ -5,12 +5,13 @@
 
   const DB_URL = "sqlite:demeter2.db";
 
+  let transactions: Transaction[] = [];
+
   async function getTransactions_() {
     try {
       const db = await Database.load(DB_URL);
-      await getTransactions(db).then((transactions) => {
-        console.log(transactions);
-      });
+      const result = await getTransactions(db);
+      transactions = result;
     } catch (error) {
       console.log(error);
     }
@@ -43,11 +44,32 @@
 
 </script>
 <main class="container">
-
-<button onclick={() => addTransaction_({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
-<button onclick={getTransactions_}>Print Transactions</button>
-<button onclick={addSampleTransactions_}>Add Sample Transactions</button>
-
+  <div class="button-row">
+    <button onclick={() => addTransaction_({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
+    <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Filename</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each transactions as tx}
+        <tr>
+          <td>{tx.id}</td>
+          <td>{tx.date}</td>
+          <td>{tx.description}</td>
+          <td>{tx.amount}</td>
+          <td>{tx.filename}</td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
 </main>
 
 <style>
@@ -72,6 +94,24 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
 }
 
 button {
