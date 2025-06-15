@@ -66,6 +66,8 @@ select {
   padding: 0.4em 1em;
 }
 
+/*
+For now no dark theme
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -80,3 +82,4 @@ select {
     background-color: #0f0f0f69;
   }
 }
+*/
