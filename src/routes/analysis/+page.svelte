@@ -26,8 +26,9 @@
     if (filename && filename !== 'All') {
       txs = txs.filter(t => t.filename === filename);
     }
-    if (startDate) txs = txs.filter(t => t.date >= startDate);
-    if (endDate)   txs = txs.filter(t => t.date <= endDate);
+
+    txs = txs.filter(t => startDate ? t.date >= startDate : true);
+    txs = txs.filter(t => endDate ? t.date <= endDate : true);
 
     totalCount = txs.length;
     if (totalCount === 0) return;
@@ -78,13 +79,17 @@
       <tr>
         <td class="key-cell">Most expensive</td>
         <td class="value-cell">
-          {mostExpensive.description} — {formatAmount(mostExpensive.amount * 100)}
-          on {mostExpensive.date}
+          {#if !mostExpensive}
+            No transactions available
+          {:else}
+            {mostExpensive.description} ({formatAmount(mostExpensive.amount * 100)}
+            on {mostExpensive.date})
+          {/if}
         </td>
       </tr>
       <tr>
         <td class="key-cell">Most frequent description</td>
-        <td class="value-cell">“{topDescription}” ({topDescriptorCount} times)</td>
+        <td class="value-cell">{topDescription} ({topDescriptorCount} times)</td>
       </tr>
       </tbody>
     </table>

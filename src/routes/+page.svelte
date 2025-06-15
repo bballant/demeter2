@@ -211,7 +211,7 @@ function toggleSort(by: SortBy) {
   {#if showAbout}
     <div class="modal-overlay" role="button" tabindex="0" onclick={() => (showAbout = false)} onkeydown={(e) => (e.key === 'Enter' || e.key === ' ' ? showAbout = false : null)} style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
       <div class="modal-content" role="dialog" aria-modal="true" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} style="background: white; padding: 1rem; border-radius: 4px; max-width: 90%; max-height: 90%; overflow: auto;">
-        <img src="/demeter2.png" alt="About Image" style="max-width:100%; max-height:80vh;" />
+        <img src="/demeter2.png" alt="Demeter 2 logo" style="max-width:100%; max-height:80vh;" />
         <button onclick={() => (showAbout = false)} style="display: block; margin: 1rem auto 0;">Close</button>
       </div>
     </div>
