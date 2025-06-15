@@ -7,7 +7,7 @@ export type Transaction = {
 };
 
 export type Filter = {
-  filename: string;
-  startDate: string;
-  endDate: string;
+  filename: string | undefined;
+  startDate: string | undefined;
+  endDate: string | undefined;
 };

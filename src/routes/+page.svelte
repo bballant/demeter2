@@ -8,7 +8,7 @@
 
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
-  let filter: Filter = { filename: "All", startDate: "", endDate: "" };
+  let filter: Filter = { filename: undefined, startDate: undefined, endDate: undefined };
   let fileInput: HTMLInputElement;
 
   async function getTransactions_() {
