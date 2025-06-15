@@ -29,7 +29,7 @@
     if (totalCount === 0) return;
 
     mostExpensive = txs.reduce(
-      (prev, curr) => (curr.amount > prev.amount ? curr : prev),
+      (prev, curr) => (curr.amount < prev.amount ? curr : prev),
       txs[0]
     );
 
@@ -55,11 +55,11 @@
   {#if totalCount === 0}
     <p>No transactions match your filter.</p>
   {:else}
-    <ul>
+    <ul style="text-align: left;">
       <li>Total transactions: {totalCount}</li>
       <li>
         Most expensive:
-        {mostExpensive.description} — {formatAmount(mostExpensive.amount)}
+        {mostExpensive.description} — {formatAmount(mostExpensive.amount * 100)}
         on {mostExpensive.date}
       </li>
       <li>
@@ -67,7 +67,7 @@
       </li>
     </ul>
   {/if}
-  <button onclick={() => (window.location.href = '/')}>
-    ← Back
+  <button onclick={() => (window.location.href = '/')} style="width: auto; align-self: center;">
+    Close
   </button>
 </main>
