@@ -97,32 +97,19 @@ async function handleCSVUpload(event: Event) {
   await loadFilenames_();
 }
 
-async function filterTransactions_() {
-  try {
-    const db = await Database.load(DB_URL);
-    let result = await getTransactions(db);
-    if (selectedFilename !== "All") {
-      result = result.filter(tx => tx.filename === selectedFilename);
-    }
-    transactions = result;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 </script>
 <main class="container">
   <div class="button-row">
-    <select bind:value={selectedFilename} onchange={filterTransactions_}>
-      <option value="All">Show All</option>
-      {#each filenames.slice(1) as fname}
-        <option value={fname}>{fname}</option>
-      {/each}
-    </select>
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
-    <button onclick={deleteByFilename_}>Delete shown</button>
+    <select bind:value={selectedFilename}>
+      <option value="All">All</option>
+      {#each filenames as fname}
+        <option value={fname}>{fname}</option>
+      {/each}
+    </select>
+    <button onclick={deleteByFilename_}>Delete by filename</button>
   </div>
   <table>
     <thead>
