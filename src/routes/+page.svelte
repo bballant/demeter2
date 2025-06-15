@@ -2,11 +2,13 @@
   import Database from "@tauri-apps/plugin-sql";
   import type { Transaction } from '../lib/types';
   import { onMount } from 'svelte';
-  import { getTransactions, addTransaction, deleteAllTransactions } from '../lib/db';
+  import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename } from '../lib/db';
 
   const DB_URL = "sqlite:demeter2.db";
 
   let transactions: Transaction[] = [];
+  let filenames: string[] = [];
+  let selectedFilename: string = "All";
 
   async function getTransactions_() {
     try {
@@ -47,13 +49,25 @@
 
   onMount(() => {
     getTransactions_();
+    loadFilenames_();
   });
 
-async function deleteAllTransactions_() {
+async function loadFilenames_() {
   try {
     const db = await Database.load(DB_URL);
-    await deleteAllTransactions(db);
+    const names = await getFilenames(db);
+    filenames = ["All", ...names];
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function deleteByFilename_() {
+  try {
+    const db = await Database.load(DB_URL);
+    await deleteTransactionsByFilename(db, selectedFilename);
     await getTransactions_();
+    await loadFilenames_();
   } catch (error) {
     console.log(error);
   }
@@ -64,7 +78,13 @@ async function deleteAllTransactions_() {
   <div class="button-row">
     <button onclick={() => addTransaction_({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
     <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
-      <button onclick={deleteAllTransactions_}>Delete All Transactions</button>
+    <select bind:value={selectedFilename}>
+      <option value="All">All</option>
+      {#each filenames as fname}
+        <option value={fname}>{fname}</option>
+      {/each}
+    </select>
+    <button onclick={deleteByFilename_}>Delete by filename</button>
   </div>
   <table>
     <thead>
@@ -107,7 +127,6 @@ async function deleteAllTransactions_() {
 
 .container {
   margin: 0;
-  padding-top: 10vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
