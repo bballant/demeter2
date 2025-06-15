@@ -57,7 +57,14 @@
 <main class="container">
   <h1>Transaction Analysis</h1>
   <p class="subtitle" style="margin-top:0.5rem; margin-bottom:1rem;">
-    Filters: {filename ?? 'All'} {startDate ? `from ${startDate}` : ''} {endDate ? `to ${endDate}` : ''}
+    {#if !filename && !startDate && !endDate}
+      No Filter
+    {:else}
+      Filtered on
+      {#if filename} filename: {filename}{/if}
+      {#if startDate} from {startDate}{/if}
+      {#if endDate} to {endDate}{/if}
+    {/if}
   </p>
   {#if totalCount === 0}
     <p>No transactions match your filter.</p>
@@ -82,7 +89,17 @@
       </tbody>
     </table>
   {/if}
-  <button onclick={() => (window.location.href = '/')} style="width: auto; align-self: center; margin-top: 1rem;">
+  <button
+    onclick={() => {
+      const params = new URLSearchParams({
+        filename: filename ?? "",
+        startDate: startDate ?? "",
+        endDate: endDate ?? ""
+      });
+      window.location.href = `/?${params.toString()}`;
+    }}
+    style="width: auto; align-self: center; margin-top: 1rem;"
+  >
     Close
   </button>
 </main>

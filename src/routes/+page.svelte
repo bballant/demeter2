@@ -44,8 +44,13 @@
 
 
   onMount(() => {
+    const url = new URL(window.location.href);
+    filter.filename = url.searchParams.get('filename') || undefined;
+    filter.startDate = url.searchParams.get('startDate') || undefined;
+    filter.endDate = url.searchParams.get('endDate') || undefined;
     getTransactions_();
     loadFilenames_();
+    filterTransactions_();
   });
 
 async function loadFilenames_() {

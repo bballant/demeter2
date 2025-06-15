@@ -78,6 +78,12 @@ select {
   padding: 0.5rem;
 }
 
+.subtitle {
+  color: #2F2F2F;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 .key-cell {
   text-align: right;
   background-color: #C5EDE8;
