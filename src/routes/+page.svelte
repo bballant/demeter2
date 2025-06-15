@@ -25,6 +25,7 @@
       const db = await Database.load(DB_URL);
       await addTransaction(db, tx);
       await getTransactions_();
+      await loadFilenames_();
     } catch (error) {
       console.log(error);
     }
@@ -42,6 +43,7 @@
         });
       }
       await getTransactions_();
+      await loadFilenames_();
     } catch (error) {
       console.log(error);
     }
