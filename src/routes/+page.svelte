@@ -32,23 +32,6 @@
     }
   }
 
-  async function addSampleTransactions_() {
-    try {
-      const db = await Database.load(DB_URL);
-      for (let i = 0; i < 100; i++) {
-        await addTransaction(db, {
-          date: new Date().toISOString().split("T")[0],
-          description: `Sample transaction ${i + 1}`,
-          amount: Math.floor(Math.random() * 1000),
-          filename: "sample-transaction"
-        });
-      }
-      await getTransactions_();
-      await loadFilenames_();
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   onMount(() => {
     getTransactions_();
@@ -121,7 +104,6 @@ async function filterTransactions_() {
     </select>
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
-    <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
     <button onclick={deleteByFilename_}>Delete shown</button>
   </div>
   <table>
