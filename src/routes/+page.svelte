@@ -160,8 +160,8 @@ function toggleSort(by: SortBy) {
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <button onclick={deleteByFilter_}>Delete Shown</button>
+    <a href="#" onclick={() => (showAbout = true)} style="margin-left: auto;">About</a>
   </div>
-  <a href="#" onclick={() => (showAbout = true)} style="margin-bottom: 1rem; display: inline-block;">About</a>
   <table>
     <thead>
       <tr>
@@ -195,7 +195,7 @@ function toggleSort(by: SortBy) {
     <div class="modal-overlay" onclick={() => (showAbout = false)} style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
       <div class="modal-content" onclick={(e) => e.stopPropagation()} style="background: white; padding: 1rem; border-radius: 4px; max-width: 90%; max-height: 90%; overflow: auto;">
         <img src="/demeter2.png" alt="About Image" style="max-width:100%; max-height:80vh;" />
-        <button onclick={() => (showAbout = false)} style="margin-top: 1rem;">Close</button>
+        <button onclick={() => (showAbout = false)} style="display: block; margin: 1rem auto 0;">Close</button>
       </div>
     </div>
   {/if}
