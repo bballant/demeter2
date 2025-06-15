@@ -38,5 +38,5 @@ export async function deleteByIds(db: any, ids: number[]): Promise<void> {
   if (!ids || ids.length === 0) return;
   const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
   const sql = `DELETE FROM txn WHERE id IN (${placeholders})`;
-  await db.execute(sql, ...ids);
+  await db.execute(sql, ids);
 }
