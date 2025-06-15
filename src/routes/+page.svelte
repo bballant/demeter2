@@ -110,8 +110,8 @@ async function filterTransactions_() {
         <option value={fname}>{fname}</option>
       {/each}
     </select>
-    <input type="date" bind:value={startDate} onchange={(e) => { filterTransactions_(); (e.target as HTMLInputElement).blur(); }} />
-    <input type="date" bind:value={endDate} onchange={(e) => { filterTransactions_(); (e.target as HTMLInputElement).blur(); }} />
+    <input type="date" bind:value={startDate} onblur={filterTransactions_} />
+    <input type="date" bind:value={endDate} onblur={filterTransactions_} />
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <button onclick={deleteByFilename_}>Delete shown</button>
