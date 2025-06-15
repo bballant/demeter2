@@ -98,14 +98,14 @@ async function filterTransactions_() {
 </script>
 <main class="container">
   <div class="button-row">
-    <input type="date" bind:value={startDate} />
-    <input type="date" bind:value={endDate} />
     <select bind:value={selectedFilename} onchange={filterTransactions_}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
         <option value={fname}>{fname}</option>
       {/each}
     </select>
+    <input type="date" bind:value={startDate} />
+    <input type="date" bind:value={endDate} />
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <button onclick={deleteByFilename_}>Delete shown</button>
