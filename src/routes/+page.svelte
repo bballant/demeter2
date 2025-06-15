@@ -146,6 +146,8 @@ function toggleSort(by: SortBy) {
 </script>
 <main class="container">
   <div class="button-row">
+    <button onclick={() => fileInput.click()}>Upload CSV</button>
+    <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <select bind:value={filter.filename} onchange={filterTransactions_}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
@@ -162,9 +164,9 @@ function toggleSort(by: SortBy) {
       bind:value={filter.endDate}
       onblur={filterTransactions_}
     />
-    <button onclick={() => fileInput.click()}>Upload CSV</button>
-    <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
-    <button onclick={deleteByFilter_}>Delete Shown</button>
+    <button type="button" onclick={() => { filter = { filename: undefined, startDate: undefined, endDate: undefined }; filterTransactions_(); }}>
+      Clear
+    </button>
     <button
       onclick={() => {
         const params = new URLSearchParams({
@@ -177,10 +179,8 @@ function toggleSort(by: SortBy) {
     >
       Analysis
     </button>
-    <button type="button" onclick={() => { filter = { filename: undefined, startDate: undefined, endDate: undefined }; filterTransactions_(); }}>
-      Clear
-    </button>
-    <button type="button" onclick={() => (showAbout = false)} style="margin-left: auto;">About</button>
+    <button onclick={deleteByFilter_}>Delete Shown</button>
+    <button type="button" onclick={() => (showAbout = true)} style="margin-left: auto;">?</button>
   </div>
   <table>
     <thead>
@@ -204,7 +204,7 @@ function toggleSort(by: SortBy) {
           <td>{tx.id}</td>
           <td>{tx.date}</td>
           <td>{tx.description}</td>
-          <td>{formatAmount(tx.amount * 100)}</td>
+          <td>{formatAmount(tx.amount)}</td>
           <td>{tx.filename}</td>
         </tr>
       {/each}

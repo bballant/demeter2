@@ -75,7 +75,7 @@
       topPayees = Object.entries(sumByDesc)
         .map(([description, total]) => ({ description, total }))
         .sort((a, b) => a.total - b.total)
-        .slice(0, 10);
+        .slice(0, 20);
     }
   });
 
@@ -109,19 +109,19 @@
       </tr>
       <tr>
         <td class="key-cell">Total spending</td>
-        <td class="value-cell">{formatAmount(totalSpending * 100)}</td>
+        <td class="value-cell">{formatAmount(totalSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Average spending</td>
-        <td class="value-cell">{formatAmount(avgSpending * 100)}</td>
+        <td class="value-cell">{formatAmount(avgSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Median spending</td>
-        <td class="value-cell">{formatAmount(medianSpending * 100)}</td>
+        <td class="value-cell">{formatAmount(medianSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Weekly average spending</td>
-        <td class="value-cell">{formatAmount(weeklyAvgSpending * 100)}</td>
+        <td class="value-cell">{formatAmount(weeklyAvgSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Most expensive</td>
@@ -129,7 +129,7 @@
           {#if !mostExpensive}
             No transactions available
           {:else}
-            {mostExpensive.description} ({formatAmount(mostExpensive.amount * 100)}
+            {mostExpensive.description} ({formatAmount(mostExpensive.amount)}
             on {mostExpensive.date})
           {/if}
         </td>
@@ -139,11 +139,11 @@
         <td class="value-cell">{topDescription} ({topDescriptorCount} times)</td>
       </tr>
       <tr>
-        <td class="key-cell">Top 5 payees (by amount)</td>
+        <td class="key-cell">Top 20 payees (by amount)</td>
         <td class="value-cell">
           <ul>
             {#each topPayees as p}
-              <li>{p.description}: {formatAmount(p.total * 100)}</li>
+              <li>{p.description}: {formatAmount(p.total)}</li>
             {/each}
           </ul>
         </td>
