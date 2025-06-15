@@ -13,13 +13,13 @@ pub fn run() {
     let migrations = vec![
         Migration {
             version: 1,
-            description: "create users table",
-            sql: "CREATE TABLE IF NOT EXISTS transaction (
+            description: "create tx table",
+            sql: "CREATE TABLE txn (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 date TEXT NOT NULL,
                 description TEXT NOT NULL,
                 amount INTEGER NOT NULL,
-                filename TEXT NOT NULL
+                filename TEXT
             )",
             kind: MigrationKind::Up,
         }

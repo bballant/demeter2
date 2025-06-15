@@ -1,12 +1,10 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import Database from "@tauri-apps/plugin-sql";
-  import type { Transaction } from '$lib/types';
-  import { getTransactions as fetchTransactions, addTransaction as insertTransaction } from '$lib/db';
+  import type { Transaction } from '../lib/types';
+  import { getTransactions,  addTransaction} from '../lib/db';
 
   const DB_URL = "sqlite:demeter2.db";
-
-  import type { Transaction } from '$lib/types';
 
   let name = $state("");
   let greetMsg = $state("");
@@ -17,20 +15,21 @@
     greetMsg = await invoke("greet", { name });
   }
 
-  async function getTransactions() {
+  async function getTransactions_() {
     try {
       const db = await Database.load(DB_URL);
-      const transactions = await fetchTransactions(db);
-      console.log("Transactions:", transactions);
+      await getTransactions(db).then((transactions) => {
+        console.log(transactions);
+      });
     } catch (error) {
       console.log(error);
     }
   }
 
-  async function addTransaction(tx: Omit<Transaction, "id">) {
+  async function addTransaction_(tx: Omit<Transaction, "id">) {
     try {
       const db = await Database.load(DB_URL);
-      await insertTransaction(db, tx);
+      await addTransaction(db, tx);
     } catch (error) {
       console.log(error);
     }
@@ -59,8 +58,8 @@
   </form>
   <p>{greetMsg}</p>
 
-<button onclick={() => addTransaction({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
-<button onclick={getTransactions}>Print Transactions</button>
+<button onclick={() => addTransaction_({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
+<button onclick={getTransactions_}>Print Transactions</button>
 
 </main>
 
