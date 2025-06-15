@@ -75,7 +75,7 @@
       topPayees = Object.entries(sumByDesc)
         .map(([description, total]) => ({ description, total }))
         .sort((a, b) => a.total - b.total)
-        .slice(0, 5);
+        .slice(0, 10);
     }
   });
 
