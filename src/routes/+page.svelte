@@ -90,6 +90,9 @@ async function filterTransactions_() {
       result = result.filter(tx => tx.filename === selectedFilename);
     }
     if (startDate) {
+      console.log("Filtering from start date:", startDate);
+      console.log(result[0]?.date);
+      console.log(result[0]?.date >= startDate);
       result = result.filter(tx => tx.date >= startDate);
     }
     if (endDate) {
@@ -113,20 +116,16 @@ async function filterTransactions_() {
     <input
       type="date"
       bind:value={startDate}
-      placeholder="YYYY-MM-DD"
-      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
       onblur={filterTransactions_}
     />
     <input
       type="date"
       bind:value={endDate}
-      placeholder="YYYY-MM-DD"
-      pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
       onblur={filterTransactions_}
     />
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
-    <button onclick={deleteByFilename_}>Delete shown</button>
+    <button onclick={deleteByFilename_}>Delete Shown</button>
   </div>
   <table>
     <thead>
