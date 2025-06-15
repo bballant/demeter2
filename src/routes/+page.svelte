@@ -81,8 +81,20 @@ async function handleCSVUpload(event: Event) {
   const file = input.files?.[0];
   if (!file) return;
   const text = await file.text();
-  const header = text.split("\n")[0];
-  console.log("CSV Header:", header);
+  const lines = text.split("\n").filter(line => line.trim());
+  // drop header
+  lines.shift();
+  const filenameStr = file.name;
+  const db = await Database.load(DB_URL);
+  for (const line of lines) {
+    const cols = line.split(",");
+    const date = cols[0].replace(/"/g, "");
+    const description = cols[2]?.replace(/"/g, "") || "";
+    const amount = Number(cols[4]?.replace(/"/g, "")) || 0;
+    await addTransaction(db, { date, description, amount, filename: filenameStr });
+  }
+  await getTransactions_();
+  await loadFilenames_();
 }
 
 </script>
