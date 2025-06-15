@@ -17,6 +17,7 @@
   let totalSpending = 0;
   let avgSpending = 0;
   let medianSpending = 0;
+  let weeklyAvgSpending = 0;
 
   onMount(async () => {
     const url = new URL(window.location.href);
@@ -58,6 +59,13 @@
       medianSpending = sorted.length % 2 !== 0
         ? sorted[mid]
         : (sorted[mid - 1] + sorted[mid]) / 2;
+      // weekly average spending over date range of spend transactions
+      const dates = spendTxs.map(t => new Date(t.date));
+      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+      const days = (maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
+      const weeks = days / 7 || 1;
+      weeklyAvgSpending = totalSpending / weeks;
     }
   });
 
@@ -100,6 +108,10 @@
       <tr>
         <td class="key-cell">Median spending</td>
         <td class="value-cell">{formatAmount(medianSpending * 100)}</td>
+      </tr>
+      <tr>
+        <td class="key-cell">Weekly average spending</td>
+        <td class="value-cell">{formatAmount(weeklyAvgSpending * 100)}</td>
       </tr>
       <tr>
         <td class="key-cell">Most expensive</td>
