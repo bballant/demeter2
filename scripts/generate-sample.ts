@@ -46,7 +46,7 @@ function makeSample(records: FidelityRecord[], month: number, year: number): Sam
 async function main(): Promise<void> {
   const input = fs.readFileSync("../../../tmp/fidelity_01-01-2024_06-12-2025.csv", "utf-8");
   const records: FidelityRecord[] = parse(input, { columns: true, skip_empty_lines: true });
-  for (const [month, year] of [[3, 2024], [4, 2024]]) {
+  for (const [month, year] of [[3, 2025], [4, 2025]]) {
     const sample = makeSample(records, month, year);
     const file = `samples/sampletxn${month}-${year}.csv`;
     fs.writeFileSync(file, stringify(sample, { header: true }));
