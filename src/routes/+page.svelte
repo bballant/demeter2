@@ -2,7 +2,7 @@
   import Database from "@tauri-apps/plugin-sql";
   import type { Transaction, Filter } from '../lib/types';
   import { onMount } from 'svelte';
-  import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename } from '../lib/db';
+  import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
 
   const DB_URL = "sqlite:demeter2.db";
 
@@ -51,25 +51,19 @@ async function loadFilenames_() {
 async function deleteByFilter_() {
   try {
     const db = await Database.load(DB_URL);
-    let sql = "DELETE FROM txn";
-    const conditions: string[] = [];
-    const params: any[] = [];
-    if (filter.filename !== "All") {
-      conditions.push("filename = ?");
-      params.push(filter.filename);
+    const all = await getTransactions(db);
+    let toDelete = all;
+    if (filter.filename && filter.filename !== "All") {
+      toDelete = toDelete.filter(tx => tx.filename === filter.filename);
     }
     if (filter.startDate) {
-      conditions.push("date >= ?");
-      params.push(filter.startDate);
+      toDelete = toDelete.filter(tx => tx.date >= filter.startDate);
     }
     if (filter.endDate) {
-      conditions.push("date <= ?");
-      params.push(filter.endDate);
+      toDelete = toDelete.filter(tx => tx.date <= filter.endDate);
     }
-    if (conditions.length > 0) {
-      sql += " WHERE " + conditions.join(" AND ");
-    }
-    await db.execute(sql, ...params);
+    const ids = toDelete.map(tx => tx.id);
+    await deleteByIds(db, ids);
     await getTransactions_();
     await loadFilenames_();
   } catch (error) {
