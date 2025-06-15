@@ -182,7 +182,7 @@ function toggleSort(by: SortBy) {
           <td>{tx.id}</td>
           <td>{tx.date}</td>
           <td>{tx.description}</td>
-          <td>{formatAmount(tx.amount)}</td>
+          <td>{formatAmount(tx.amount * 100)}</td>
           <td>{tx.filename}</td>
         </tr>
       {/each}
