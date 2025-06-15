@@ -88,8 +88,8 @@ async function handleCSVUpload(event: Event) {
 </script>
 <main class="container">
   <div class="button-row">
-    <button on:click={() => fileInput.click()}>Upload CSV</button>
-    <input type="file" accept=".csv" bind:this={fileInput} on:change={handleCSVUpload} style="display:none" />
+    <button onclick={() => fileInput.click()}>Upload CSV</button>
+    <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <button onclick={addSampleTransactions_}>Add Sample Transactions</button>
     <select bind:value={selectedFilename}>
       <option value="All">All</option>
