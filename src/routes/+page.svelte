@@ -1,5 +1,16 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import Database from "@tauri-apps/plugin-sql";
+
+  const DB_URL = "sqlite:demeter2.db";
+
+  type Transaction = {
+    id: number;
+    date: string;
+    description: string;
+    amount: number;
+    filename: string|undefined;
+  };
 
   let name = $state("");
   let greetMsg = $state("");
@@ -9,8 +20,32 @@
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     greetMsg = await invoke("greet", { name });
   }
-</script>
 
+  async function getTransactions() {
+    try {
+      const db = await Database.load(DB_URL);
+      const transactions = await db.select<Transaction[]>("SELECT * FROM transaction");
+      console.log("Transactions:", transactions);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function addTransaction(tx: Omit<Transaction, "id">) {
+    try {
+      const db = await Database.load(DB_URL);
+      await db.execute("INSERT INTO transaction (date, description, amount, filename) VALUES ($1, $2, $3, $4)", [
+        tx.date,
+        tx.description,
+        tx.amount,
+        tx.filename,
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+</script>
 <main class="container">
   <h1>Welcome to Tauri + Svelte</h1>
 
@@ -32,6 +67,10 @@
     <button type="submit">Greet</button>
   </form>
   <p>{greetMsg}</p>
+
+<button onclick={() => addTransaction({date: "2025-06-14", description: "cool", amount: 1000, filename: undefined})}>Add Transactions</button>
+<button onclick={getTransactions}>Print Transactions</button>
+
 </main>
 
 <style>
