@@ -1,6 +1,6 @@
 <script lang="ts">
   import Database from "@tauri-apps/plugin-sql";
-  import type { Transaction } from '../lib/types';
+  import type { Transaction, Filter } from '../lib/types';
   import { onMount } from 'svelte';
   import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename } from '../lib/db';
 
@@ -8,10 +8,8 @@
 
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
-  let selectedFilename: string = "All";
+  let filter: Filter = { filename: "All", startDate: "", endDate: "" };
   let fileInput: HTMLInputElement;
-  let startDate: string = "";
-  let endDate: string = "";
 
   async function getTransactions_() {
     try {
@@ -56,17 +54,17 @@ async function deleteByFilter_() {
     let sql = "DELETE FROM txn";
     const conditions: string[] = [];
     const params: any[] = [];
-    if (selectedFilename !== "All") {
+    if (filter.filename !== "All") {
       conditions.push("filename = ?");
-      params.push(selectedFilename);
+      params.push(filter.filename);
     }
-    if (startDate) {
+    if (filter.startDate) {
       conditions.push("date >= ?");
-      params.push(startDate);
+      params.push(filter.startDate);
     }
-    if (endDate) {
+    if (filter.endDate) {
       conditions.push("date <= ?");
-      params.push(endDate);
+      params.push(filter.endDate);
     }
     if (conditions.length > 0) {
       sql += " WHERE " + conditions.join(" AND ");
@@ -104,17 +102,17 @@ async function filterTransactions_() {
   try {
     const db = await Database.load(DB_URL);
     let result = await getTransactions(db);
-    if (selectedFilename !== "All") {
-      result = result.filter(tx => tx.filename === selectedFilename);
+    if (filter.filename !== "All") {
+      result = result.filter(tx => tx.filename === filter.filename);
     }
-    if (startDate) {
-      console.log("Filtering from start date:", startDate);
+    if (filter.startDate) {
+      console.log("Filtering from start date:", filter.startDate);
       console.log(result[0]?.date);
-      console.log(result[0]?.date >= startDate);
-      result = result.filter(tx => tx.date >= startDate);
+      console.log(result[0]?.date >= filter.startDate);
+      result = result.filter(tx => tx.date >= filter.startDate);
     }
-    if (endDate) {
-      result = result.filter(tx => tx.date <= endDate);
+    if (filter.endDate) {
+      result = result.filter(tx => tx.date <= filter.endDate);
     }
     transactions = result;
   } catch (error) {
@@ -125,7 +123,7 @@ async function filterTransactions_() {
 </script>
 <main class="container">
   <div class="button-row">
-    <select bind:value={selectedFilename} onchange={filterTransactions_}>
+    <select bind:value={filter.filename} onchange={filterTransactions_}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
         <option value={fname}>{fname}</option>
@@ -133,12 +131,12 @@ async function filterTransactions_() {
     </select>
     <input
       type="date"
-      bind:value={startDate}
+      bind:value={filter.startDate}
       onblur={filterTransactions_}
     />
     <input
       type="date"
-      bind:value={endDate}
+      bind:value={filter.endDate}
       onblur={filterTransactions_}
     />
     <button onclick={() => fileInput.click()}>Upload CSV</button>

@@ -5,3 +5,9 @@ export type Transaction = {
   amount: number;
   filename: string | undefined;
 };
+
+export type Filter = {
+  filename: string;
+  startDate: string;
+  endDate: string;
+};
