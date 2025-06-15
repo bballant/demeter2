@@ -18,6 +18,7 @@
   let avgSpending = 0;
   let medianSpending = 0;
   let weeklyAvgSpending = 0;
+  let topPayees: { description: string; total: number }[] = [];
 
   onMount(async () => {
     const url = new URL(window.location.href);
@@ -66,6 +67,15 @@
       const days = (maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
       const weeks = days / 7 || 1;
       weeklyAvgSpending = totalSpending / weeks;
+      // top 5 payees by total spending
+      const sumByDesc: Record<string, number> = {};
+      spendTxs.forEach(t => {
+        sumByDesc[t.description] = (sumByDesc[t.description] || 0) + t.amount;
+      });
+      topPayees = Object.entries(sumByDesc)
+        .map(([description, total]) => ({ description, total }))
+        .sort((a, b) => a.total - b.total)
+        .slice(0, 5);
     }
   });
 
@@ -127,6 +137,16 @@
       <tr>
         <td class="key-cell">Most frequent description</td>
         <td class="value-cell">{topDescription} ({topDescriptorCount} times)</td>
+      </tr>
+      <tr>
+        <td class="key-cell">Top 5 payees (by amount)</td>
+        <td class="value-cell">
+          <ul>
+            {#each topPayees as p}
+              <li>{p.description}: {formatAmount(p.total * 100)}</li>
+            {/each}
+          </ul>
+        </td>
       </tr>
       </tbody>
     </table>
