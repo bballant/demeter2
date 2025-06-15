@@ -1,7 +1,7 @@
 <script lang="ts">
   import Database from "@tauri-apps/plugin-sql";
   import { parseCsv } from '../lib/csv';
-  import type { Transaction, Filter } from '../lib/types';
+  import type { Transaction, Filter, Sort, SortBy } from '../lib/types';
   import { onMount } from 'svelte';
   import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
 
@@ -18,6 +18,7 @@
   let filenames: string[] = [];
   let filter: Filter = { filename: undefined, startDate: undefined, endDate: undefined };
   let fileInput: HTMLInputElement;
+  let sort: Sort = { by: 'date', order: 'asc' };
 
   async function getTransactions_() {
     try {
@@ -108,10 +109,32 @@ async function filterTransactions_() {
     if (endDate) {
       result = result.filter(tx => tx.date <= endDate);
     }
+    // apply sorting
+    result.sort((a, b) => {
+      let cmp = 0;
+      if (sort.by === 'date') {
+        cmp = a.date.localeCompare(b.date);
+      } else if (sort.by === 'description') {
+        cmp = a.description.localeCompare(b.description);
+      } else if (sort.by === 'amount') {
+        cmp = a.amount - b.amount;
+      }
+      return sort.order === 'asc' ? cmp : -cmp;
+    });
     transactions = result;
   } catch (error) {
     console.log(error);
   }
+}
+
+function toggleSort(by: SortBy) {
+  if (sort.by === by) {
+    sort.order = sort.order === 'asc' ? 'desc' : 'asc';
+  } else {
+    sort.by = by;
+    sort.order = 'asc';
+  }
+  filterTransactions_();
 }
 
 </script>
@@ -141,9 +164,15 @@ async function filterTransactions_() {
     <thead>
       <tr>
         <th>ID</th>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Amount</th>
+        <th on:click={() => toggleSort('date')} style="cursor: pointer;">
+          Date {sort.by === 'date' ? (sort.order==='asc' ? '▲' : '▼') : ''}
+        </th>
+        <th on:click={() => toggleSort('description')} style="cursor: pointer;">
+          Description {sort.by === 'description' ? (sort.order==='asc' ? '▲' : '▼') : ''}
+        </th>
+        <th on:click={() => toggleSort('amount')} style="cursor: pointer;">
+          Amount {sort.by === 'amount' ? (sort.order==='asc' ? '▲' : '▼') : ''}
+        </th>
         <th>Filename</th>
       </tr>
     </thead>
