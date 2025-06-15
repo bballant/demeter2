@@ -50,10 +50,28 @@ async function loadFilenames_() {
   }
 }
 
-async function deleteByFilename_() {
+async function deleteByFilter_() {
   try {
     const db = await Database.load(DB_URL);
-    await deleteTransactionsByFilename(db, selectedFilename);
+    let sql = "DELETE FROM txn";
+    const conditions: string[] = [];
+    const params: any[] = [];
+    if (selectedFilename !== "All") {
+      conditions.push("filename = ?");
+      params.push(selectedFilename);
+    }
+    if (startDate) {
+      conditions.push("date >= ?");
+      params.push(startDate);
+    }
+    if (endDate) {
+      conditions.push("date <= ?");
+      params.push(endDate);
+    }
+    if (conditions.length > 0) {
+      sql += " WHERE " + conditions.join(" AND ");
+    }
+    await db.execute(sql, ...params);
     await getTransactions_();
     await loadFilenames_();
   } catch (error) {
@@ -125,7 +143,7 @@ async function filterTransactions_() {
     />
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
-    <button onclick={deleteByFilename_}>Delete Shown</button>
+    <button onclick={deleteByFilter_}>Delete Shown</button>
   </div>
   <table>
     <thead>
