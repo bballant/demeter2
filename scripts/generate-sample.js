@@ -37,7 +37,7 @@ function makeSample(month, year) {
 
 for (const [m, y] of [[3,2024],[4,2024]]) {
   const out = makeSample(m,y);
-  const file = `static/sampletxn${m}-${y}.csv`;
+  const file = `sample-files/sampletxn${m}-${y}.csv`;
   fs.writeFileSync(file, stringify(out, { header: true }));
   console.log(`Wrote ${out.length} rows to ${file}`);
 }
