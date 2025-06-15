@@ -164,13 +164,13 @@ function toggleSort(by: SortBy) {
     <thead>
       <tr>
         <th>ID</th>
-        <th onclick="toggleSort('date')" style="cursor: pointer;">
+        <th onclick={() => toggleSort('date')} style="cursor: pointer;">
           Date {sort.by === 'date' ? (sort.order==='asc' ? '▲' : '▼') : ''}
         </th>
-        <th onclick="toggleSort('description')" style="cursor: pointer;">
+        <th onclick={() => toggleSort('description')} style="cursor: pointer;">
           Description {sort.by === 'description' ? (sort.order==='asc' ? '▲' : '▼') : ''}
         </th>
-        <th onclick="toggleSort('amount')" style="cursor: pointer;">
+        <th onclick={() => toggleSort('amount')} style="cursor: pointer;">
           Amount {sort.by === 'amount' ? (sort.order==='asc' ? '▲' : '▼') : ''}
         </th>
         <th>Filename</th>
