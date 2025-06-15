@@ -52,16 +52,11 @@ async function deleteByFilter_() {
   try {
     const db = await Database.load(DB_URL);
     const all = await getTransactions(db);
-    let toDelete = all;
-    if (filter.filename && filter.filename !== "All") {
-      toDelete = toDelete.filter(tx => tx.filename === filter.filename);
-    }
-    if (filter.startDate) {
-      toDelete = toDelete.filter(tx => tx.date >= filter.startDate);
-    }
-    if (filter.endDate) {
-      toDelete = toDelete.filter(tx => tx.date <= filter.endDate);
-    }
+    const toDelete = all.filter(tx =>
+      (filter.filename && filter.filename !== "All" ? tx.filename === filter.filename : true) &&
+      (filter.startDate ? tx.date >= filter.startDate : true) &&
+      (filter.endDate ? tx.date <= filter.endDate : true)
+    );
     const ids = toDelete.map(tx => tx.id);
     await deleteByIds(db, ids);
     await getTransactions_();
