@@ -177,7 +177,10 @@ function toggleSort(by: SortBy) {
     >
       Analysis
     </button>
-    <button type="button" onclick={() => (showAbout = true)} style="margin-left: auto;">About</button>
+    <button type="button" onclick={() => { filter = { filename: undefined, startDate: undefined, endDate: undefined }; filterTransactions_(); }}>
+      Clear
+    </button>
+    <button type="button" onclick={() => (showAbout = false)} style="margin-left: auto;">About</button>
   </div>
   <table>
     <thead>
