@@ -48,7 +48,7 @@ async function main(): Promise<void> {
   const records: FidelityRecord[] = parse(input, { columns: true, skip_empty_lines: true });
   for (const [month, year] of [[3, 2024], [4, 2024]]) {
     const sample = makeSample(records, month, year);
-    const file = `static/sampletxn${month}-${year}.csv`;
+    const file = `samples/sampletxn${month}-${year}.csv`;
     fs.writeFileSync(file, stringify(sample, { header: true }));
     console.log(`Wrote ${sample.length} rows to ${file}`);
   }
