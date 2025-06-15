@@ -160,6 +160,18 @@ function toggleSort(by: SortBy) {
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
     <button onclick={deleteByFilter_}>Delete Shown</button>
+    <button
+      onclick={() => {
+        const params = new URLSearchParams({
+          filename: filter.filename ?? "",
+          startDate:  filter.startDate  ?? "",
+          endDate:    filter.endDate    ?? "",
+        });
+        window.location.href = `/analysis?${params.toString()}`;
+      }}
+    >
+      Analysis
+    </button>
     <a href="#" onclick={() => (showAbout = true)} style="margin-left: auto;">About</a>
   </div>
   <table>
