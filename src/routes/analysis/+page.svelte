@@ -124,7 +124,7 @@
         <td class="value-cell">{formatAmount(weeklyAvgSpending)}</td>
       </tr>
       <tr>
-        <td class="key-cell">Most expensive</td>
+        <td class="key-cell">Most expensive tx</td>
         <td class="value-cell">
           {#if !mostExpensive}
             No transactions available
@@ -135,7 +135,7 @@
         </td>
       </tr>
       <tr>
-        <td class="key-cell">Most frequent description</td>
+        <td class="key-cell">Most frequent payee</td>
         <td class="value-cell">{topDescription} ({topDescriptorCount} times)</td>
       </tr>
       <tr>
