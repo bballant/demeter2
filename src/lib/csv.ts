@@ -28,19 +28,19 @@ export function parseCsv(
   text: string,
   filename: string
 ): Omit<Transaction, 'id'>[] {
-  const records = Papa.parse(text, {
+  const results = Papa.parse<Record<string, string>>(text, {
     header: true, // Use first row as column headers
     skipEmptyLines: true,
     trim: true
   });
 
-  if (records.data.length === 0) return [];
+  if (results.data.length === 0) return [];
 
-  const headers = Object.keys(records.data[0] as any);
+  const headers = Object.keys(results.data[0]);
   const mappingType = detectMappingType(headers);
   const mapping = COLUMN_MAPPINGS[mappingType];
 
-  return (records.data as any[]).map((record: any) => {
+  return results.data.map((record: Record<string, string>) => {
     const date = record[mapping.date] || '';
     const description = record[mapping.description] || '';
     const amountStr = record[mapping.amount] || '0';
