@@ -1,4 +1,4 @@
-import { parse } from 'csv-parse/sync';
+import Papa from 'papaparse';
 import type { Omit } from 'utility-types';
 import type { Transaction } from './types';
 
@@ -6,11 +6,13 @@ export function parseCsv(
   text: string,
   filename: string
 ): Omit<Transaction, 'id'>[] {
-  // Parse CSV using csv-parse library
-  const records: string[][] = parse(text, {
-    skip_empty_lines: true,
-    trim: true
+  // Parse CSV using papaparse
+  const result = Papa.parse(text, {
+    skipEmptyLines: true,
+    header: false // We want arrays, not objects
   });
+
+  const records = result.data as string[][];
 
   // Remove header row
   records.shift();
