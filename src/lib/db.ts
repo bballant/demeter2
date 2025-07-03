@@ -2,9 +2,9 @@ import Database from "@tauri-apps/plugin-sql";
 import type { Transaction } from './types';
 
 const DB_URL = "sqlite:demeter2.db";
-let dbInstance: any = null;
+let dbInstance: Database | null = null;
 
-const getDb = async () => {
+const getDb = async (): Promise<Database> => {
   if (!dbInstance) {
     dbInstance = await Database.load(DB_URL);
   }
