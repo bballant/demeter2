@@ -4,13 +4,16 @@ import type { Transaction } from './types';
 
 // Column mapping configuration
 const COLUMN_MAPPINGS = {
+  default: {
+    date: 'Date',
+    description: 'Description',
+    amount: 'Amount'
+  },
   fidelity: {
     date: 'Date',
     description: 'Name',
     amount: 'Amount'
   }
-  // Add more mappings later like:
-  // chase: { date: 'Transaction Date', description: 'Description', amount: 'Amount' }
 };
 
 // Auto-detect which column mapping to use based on CSV headers
@@ -21,7 +24,7 @@ function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
     return { type: type as keyof typeof COLUMN_MAPPINGS, score: matches };
   });
 
-  return scores.sort((a, b) => b.score - a.score)[0]?.type || 'fidelity';
+  return scores.sort((a, b) => b.score - a.score)[0]?.type || 'default';
 }
 
 export function parseCsv(
@@ -29,7 +32,7 @@ export function parseCsv(
   filename: string
 ): Omit<Transaction, 'id'>[] {
   const results = Papa.parse<Record<string, string>>(text, {
-    header: true, // Use first row as column headers
+    header: true,
     skipEmptyLines: true
   });
 
