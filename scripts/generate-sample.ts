@@ -1,5 +1,6 @@
 import fs from "fs";
 import Papa from "papaparse";
+import path from "path";
 
 interface FidelityRecord {
   Date: string;
@@ -28,40 +29,72 @@ function tweakName(name: string): string {
   return `${name} Co.`;
 }
 
-function makeSample(records: FidelityRecord[], month: number, year: number): SampleRecord[] {
-  const filtered = records
-    .filter(r => r.Date.startsWith(`${year}-${String(month).padStart(2, "0")}`))
-    .map(r => ({
-      Date: r.Date,
-      Transaction: r.Transaction,
-      Name: tweakName(r.Name.replace(/"/g, "")),
-      Memo: r.Memo,
-      Amount: perturbAmount(r.Amount),
-    }));
+function makeSample(records: FidelityRecord[]): SampleRecord[] {
+  const processed = records.map(r => ({
+    Date: r.Date,
+    Transaction: r.Transaction,
+    Name: tweakName(r.Name.replace(/"/g, "")),
+    Memo: r.Memo,
+    Amount: perturbAmount(r.Amount),
+  }));
   // randomly drop ~5%
-  return filtered.filter(() => Math.random() > 0.05);
+  return processed.filter(() => Math.random() > 0.05);
+}
+
+function printUsage(): void {
+  console.log("Usage: npx tsx scripts/generate-sample.ts <input.csv> <output.csv>");
+  console.log("Example: npx tsx scripts/generate-sample.ts input.csv samples/output.csv");
 }
 
 async function main(): Promise<void> {
-  const input = fs.readFileSync("../../../tmp/fidelity_01-01-2024_06-12-2025.csv", "utf-8");
+  const args = process.argv.slice(2);
   
-  // Parse CSV using papaparse
-  const parseResult = Papa.parse<FidelityRecord>(input, {
-    header: true,
-    skipEmptyLines: true
-  });
-  
-  const records = parseResult.data;
-  
-  for (const [month, year] of [[3, 2025], [4, 2025]]) {
-    const sample = makeSample(records, month, year);
+  if (args.length !== 2) {
+    console.error("Error: Expected exactly 2 arguments");
+    printUsage();
+    process.exit(1);
+  }
+
+  const [inputFile, outputFile] = args;
+
+  // Check if input file exists
+  if (!fs.existsSync(inputFile)) {
+    console.error(`Error: Input file '${inputFile}' does not exist`);
+    process.exit(1);
+  }
+
+  // Create output directory if it doesn't exist
+  const outputDir = path.dirname(outputFile);
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  try {
+    const input = fs.readFileSync(inputFile, "utf-8");
+    
+    // Parse CSV using papaparse
+    const parseResult = Papa.parse<FidelityRecord>(input, {
+      header: true,
+      skipEmptyLines: true
+    });
+    
+    if (parseResult.errors.length > 0) {
+      console.error("CSV parsing errors:", parseResult.errors);
+    }
+    
+    const records = parseResult.data;
+    const sample = makeSample(records);
     
     // Convert back to CSV using papaparse
     const csvOutput = Papa.unparse(sample);
     
-    const file = `samples/sampletxn${month}-${year}.csv`;
-    fs.writeFileSync(file, csvOutput);
-    console.log(`Wrote ${sample.length} rows to ${file}`);
+    fs.writeFileSync(outputFile, csvOutput);
+    console.log(`Successfully processed ${records.length} input rows`);
+    console.log(`Wrote ${sample.length} sample rows to ${outputFile}`);
+    
+  } catch (error) {
+    console.error(`Error processing files: ${error}`);
+    process.exit(1);
   }
 }
 
