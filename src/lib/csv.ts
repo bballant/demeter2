@@ -30,8 +30,7 @@ export function parseCsv(
 ): Omit<Transaction, 'id'>[] {
   const results = Papa.parse<Record<string, string>>(text, {
     header: true, // Use first row as column headers
-    skipEmptyLines: true,
-    trim: true
+    skipEmptyLines: true
   });
 
   if (results.data.length === 0) return [];
@@ -41,9 +40,9 @@ export function parseCsv(
   const mapping = COLUMN_MAPPINGS[mappingType];
 
   return results.data.map((record: Record<string, string>) => {
-    const date = record[mapping.date] || '';
-    const description = record[mapping.description] || '';
-    const amountStr = record[mapping.amount] || '0';
+    const date = (record[mapping.date] || '').trim();
+    const description = (record[mapping.description] || '').trim();
+    const amountStr = (record[mapping.amount] || '0').trim();
     const amount = Math.round((parseFloat(amountStr) || 0) * 100);
 
     return { date, description, amount, filename };
