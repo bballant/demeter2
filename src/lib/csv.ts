@@ -13,6 +13,11 @@ const COLUMN_MAPPINGS = {
     date: 'Date',
     description: 'Name',
     amount: 'Amount'
+  },
+  chase: {
+    date: 'Posting Date',
+    description: 'Name',
+    amount: 'Amount'
   }
 };
 
@@ -30,11 +35,11 @@ function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
 // Convert MM/DD/YYYY format to YYYY-MM-DD format
 function normalizeDate(dateStr: string): string {
   const trimmed = dateStr.trim();
-  
+
   // Check if it matches MM/DD/YYYY format
   const mmddyyyyPattern = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
   const match = trimmed.match(mmddyyyyPattern);
-  
+
   if (match) {
     const [, month, day, year] = match;
     // Pad month and day with leading zeros if needed
@@ -42,7 +47,7 @@ function normalizeDate(dateStr: string): string {
     const paddedDay = day.padStart(2, '0');
     return `${year}-${paddedMonth}-${paddedDay}`;
   }
-  
+
   // Return as-is if not MM/DD/YYYY format
   return trimmed;
 }
@@ -64,7 +69,9 @@ export function parseCsv(
 
   return results.data.map((record: Record<string, string>) => {
     const rawDate = (record[mapping.date] || '').trim();
+    console.log(`Raw date: ${rawDate} (mapping type: ${mappingType})`);
     const date = normalizeDate(rawDate);
+    console.log(`Normalized date: ${date}`);
     const description = (record[mapping.description] || '').trim();
     const amountStr = (record[mapping.amount] || '0').trim();
     const amount = Math.round((parseFloat(amountStr) || 0) * 100);
