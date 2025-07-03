@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Database from "@tauri-apps/plugin-sql";
   import { parseCsv } from '../lib/csv';
   import type { Transaction, Filter, Sort, SortBy } from '../lib/types';
   import { onMount } from 'svelte';
@@ -12,8 +11,6 @@
     return `${sign}$${dollars}`;
   }
 
-  const DB_URL = "sqlite:demeter2.db";
-
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
   let filter: Filter = { filename: undefined, startDate: undefined, endDate: undefined };
@@ -23,8 +20,7 @@
 
   async function getTransactions_() {
     try {
-      const db = await Database.load(DB_URL);
-      const result = await getTransactions(db);
+      const result = await getTransactions();
       transactions = result;
     } catch (error) {
       console.log(error);
@@ -33,8 +29,7 @@
 
   async function addTransaction_(tx: Omit<Transaction, "id">) {
     try {
-      const db = await Database.load(DB_URL);
-      await addTransaction(db, tx);
+      await addTransaction(tx);
       await getTransactions_();
       await loadFilenames_();
     } catch (error) {
@@ -55,8 +50,7 @@
 
 async function loadFilenames_() {
   try {
-    const db = await Database.load(DB_URL);
-    const names = await getFilenames(db);
+    const names = await getFilenames();
     filenames = ["All", ...names];
   } catch (error) {
     console.log(error);
@@ -65,15 +59,14 @@ async function loadFilenames_() {
 
 async function deleteByFilter_() {
   try {
-    const db = await Database.load(DB_URL);
-    const all = await getTransactions(db);
+    const all = await getTransactions();
     const toDelete = all.filter(tx =>
       (filter.filename && filter.filename !== "All" ? tx.filename === filter.filename : true) &&
       (filter.startDate ? tx.date >= filter.startDate : true) &&
       (filter.endDate ? tx.date <= filter.endDate : true)
     );
     const ids = toDelete.map(tx => tx.id);
-    await deleteByIds(db, ids);
+    await deleteByIds(ids);
     // reset filters after deletion
     filter = { filename: undefined, startDate: undefined, endDate: undefined };
     await getTransactions_();
@@ -89,9 +82,8 @@ async function handleCSVUpload(event: Event) {
   if (!file) return;
   const text = await file.text();
   const txs = parseCsv(text, file.name);
-  const db = await Database.load(DB_URL);
   for (const tx of txs) {
-    await addTransaction(db, tx);
+    await addTransaction(tx);
   }
   await getTransactions_();
   await loadFilenames_();
@@ -99,8 +91,7 @@ async function handleCSVUpload(event: Event) {
 
 async function filterTransactions_() {
   try {
-    const db = await Database.load(DB_URL);
-    let result = await getTransactions(db);
+    let result = await getTransactions();
     if (filter.filename !== "All") {
       result = result.filter(tx => tx.filename === filter.filename);
     }

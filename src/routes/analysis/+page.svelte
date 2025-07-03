@@ -1,14 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import Database from '@tauri-apps/plugin-sql';
   import { getTransactions } from '../../lib/db';
   import type { Transaction } from '../../lib/types';
 
   let filename: string | undefined;
   let startDate: string | undefined;
   let endDate: string | undefined;
-
-  const DB_URL = "sqlite:demeter2.db";
 
   let totalCount = 0;
   let mostExpensive: Transaction | null = null;
@@ -26,8 +23,7 @@
     startDate = url.searchParams.get('startDate') || undefined;
     endDate   = url.searchParams.get('endDate')   || undefined;
 
-    const db = await Database.load(DB_URL);
-    let txs = await getTransactions(db);
+    let txs = await getTransactions();
     if (filename && filename !== 'All') {
       txs = txs.filter(t => t.filename === filename);
     }
