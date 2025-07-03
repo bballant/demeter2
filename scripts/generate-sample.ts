@@ -1,6 +1,5 @@
 import fs from "fs";
-import { parse } from "csv-parse/sync";
-import { stringify } from "csv-stringify/sync";
+import Papa from "papaparse";
 
 interface FidelityRecord {
   Date: string;
@@ -45,11 +44,23 @@ function makeSample(records: FidelityRecord[], month: number, year: number): Sam
 
 async function main(): Promise<void> {
   const input = fs.readFileSync("../../../tmp/fidelity_01-01-2024_06-12-2025.csv", "utf-8");
-  const records: FidelityRecord[] = parse(input, { columns: true, skip_empty_lines: true });
+  
+  // Parse CSV using papaparse
+  const parseResult = Papa.parse<FidelityRecord>(input, {
+    header: true,
+    skipEmptyLines: true
+  });
+  
+  const records = parseResult.data;
+  
   for (const [month, year] of [[3, 2025], [4, 2025]]) {
     const sample = makeSample(records, month, year);
+    
+    // Convert back to CSV using papaparse
+    const csvOutput = Papa.unparse(sample);
+    
     const file = `samples/sampletxn${month}-${year}.csv`;
-    fs.writeFileSync(file, stringify(sample, { header: true }));
+    fs.writeFileSync(file, csvOutput);
     console.log(`Wrote ${sample.length} rows to ${file}`);
   }
 }
