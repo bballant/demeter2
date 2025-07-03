@@ -2,25 +2,50 @@ import Papa from 'papaparse';
 import type { Omit } from 'utility-types';
 import type { Transaction } from './types';
 
+// Column mapping configuration
+const COLUMN_MAPPINGS = {
+  fidelity: {
+    date: 'Date',
+    description: 'Name',
+    amount: 'Amount'
+  }
+  // Add more mappings later like:
+  // chase: { date: 'Transaction Date', description: 'Description', amount: 'Amount' }
+};
+
+// Auto-detect which column mapping to use based on CSV headers
+function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
+  // Check which mapping has the most matching headers
+  const scores = Object.entries(COLUMN_MAPPINGS).map(([type, mapping]) => {
+    const matches = Object.values(mapping).filter(col => headers.includes(col)).length;
+    return { type: type as keyof typeof COLUMN_MAPPINGS, score: matches };
+  });
+
+  return scores.sort((a, b) => b.score - a.score)[0]?.type || 'fidelity';
+}
+
 export function parseCsv(
   text: string,
   filename: string
 ): Omit<Transaction, 'id'>[] {
-  // Parse CSV using papaparse
-  const result = Papa.parse(text, {
+  const records = Papa.parse(text, {
+    header: true, // Use first row as column headers
     skipEmptyLines: true,
-    header: false // We want arrays, not objects
+    trim: true
   });
 
-  const records = result.data as string[][];
+  if (records.data.length === 0) return [];
 
-  // Remove header row
-  records.shift();
+  const headers = Object.keys(records.data[0] as any);
+  const mappingType = detectMappingType(headers);
+  const mapping = COLUMN_MAPPINGS[mappingType];
 
-  return records.map((cols) => {
-    const date = cols[0] || '';
-    const description = cols[2] || '';
-    const amount = Math.round((Number(cols[4]) || 0) * 100);
+  return (records.data as any[]).map((record: any) => {
+    const date = record[mapping.date] || '';
+    const description = record[mapping.description] || '';
+    const amountStr = record[mapping.amount] || '0';
+    const amount = Math.round((parseFloat(amountStr) || 0) * 100);
+
     return { date, description, amount, filename };
   });
 }
