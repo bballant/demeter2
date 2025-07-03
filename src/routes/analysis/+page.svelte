@@ -1,21 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getTransactions } from '../../lib/db';
-  import type { Transaction } from '../../lib/types';
+  import { analyzeTransactions } from '../../lib/analysis';
+  import type { TransactionAnalysis } from '../../lib/types';
 
   let filename: string | undefined;
   let startDate: string | undefined;
   let endDate: string | undefined;
-
-  let totalCount = 0;
-  let mostExpensive: Transaction | null = null;
-  let topDescription = "";
-  let topDescriptorCount = 0;
-  let totalSpending = 0;
-  let avgSpending = 0;
-  let medianSpending = 0;
-  let weeklyAvgSpending = 0;
-  let topPayees: { description: string; total: number }[] = [];
+  let analysis: TransactionAnalysis = {
+    totalCount: 0,
+    mostExpensive: null,
+    topDescription: "",
+    topDescriptorCount: 0,
+    totalSpending: 0,
+    avgSpending: 0,
+    medianSpending: 0,
+    weeklyAvgSpending: 0,
+    topPayees: []
+  };
 
   onMount(async () => {
     const url = new URL(window.location.href);
@@ -31,48 +33,7 @@
     txs = txs.filter(t => startDate ? t.date >= startDate : true);
     txs = txs.filter(t => endDate ? t.date <= endDate : true);
 
-    totalCount = txs.length;
-    if (totalCount === 0) return;
-
-    mostExpensive = txs.reduce(
-      (prev, curr) => (curr.amount < prev.amount ? curr : prev),
-      txs[0]
-    );
-
-    const freq: Record<string, number> = {};
-    txs.forEach(t => {
-      freq[t.description] = (freq[t.description] || 0) + 1;
-    });
-    const [desc, count] = Object.entries(freq)
-      .sort((a, b) => b[1] - a[1])[0];
-    topDescription = desc;
-    topDescriptorCount = count;
-    const spendTxs = txs.filter(t => t.amount < 0);
-    if (spendTxs.length > 0) {
-      totalSpending = spendTxs.reduce((sum, t) => sum + t.amount, 0);
-      avgSpending = totalSpending / spendTxs.length;
-      const sorted = spendTxs.map(t => t.amount).sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      medianSpending = sorted.length % 2 !== 0
-        ? sorted[mid]
-        : (sorted[mid - 1] + sorted[mid]) / 2;
-      // weekly average spending over date range of spend transactions
-      const dates = spendTxs.map(t => new Date(t.date));
-      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-      const days = (maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
-      const weeks = days / 7 || 1;
-      weeklyAvgSpending = totalSpending / weeks;
-      // top 5 payees by total spending
-      const sumByDesc: Record<string, number> = {};
-      spendTxs.forEach(t => {
-        sumByDesc[t.description] = (sumByDesc[t.description] || 0) + t.amount;
-      });
-      topPayees = Object.entries(sumByDesc)
-        .map(([description, total]) => ({ description, total }))
-        .sort((a, b) => a.total - b.total)
-        .slice(0, 20);
-    }
+    analysis = analyzeTransactions(txs);
   });
 
   function formatAmount(cents: number): string {
@@ -94,51 +55,51 @@
       {#if endDate} to {endDate}{/if}
     {/if}
   </p>
-  {#if totalCount === 0}
+  {#if analysis.totalCount === 0}
     <p>No transactions match your filter.</p>
   {:else}
     <table class="analysis-table" style="margin: auto;">
       <tbody>
       <tr>
         <td class="key-cell">Total transactions</td>
-        <td class="value-cell">{totalCount}</td>
+        <td class="value-cell">{analysis.totalCount}</td>
       </tr>
       <tr>
         <td class="key-cell">Total spending</td>
-        <td class="value-cell">{formatAmount(totalSpending)}</td>
+        <td class="value-cell">{formatAmount(analysis.totalSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Average spending</td>
-        <td class="value-cell">{formatAmount(avgSpending)}</td>
+        <td class="value-cell">{formatAmount(analysis.avgSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Median spending</td>
-        <td class="value-cell">{formatAmount(medianSpending)}</td>
+        <td class="value-cell">{formatAmount(analysis.medianSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Weekly average spending</td>
-        <td class="value-cell">{formatAmount(weeklyAvgSpending)}</td>
+        <td class="value-cell">{formatAmount(analysis.weeklyAvgSpending)}</td>
       </tr>
       <tr>
         <td class="key-cell">Most expensive tx</td>
         <td class="value-cell">
-          {#if !mostExpensive}
+          {#if !analysis.mostExpensive}
             No transactions available
           {:else}
-            {mostExpensive.description} ({formatAmount(mostExpensive.amount)}
-            on {mostExpensive.date})
+            {analysis.mostExpensive.description} ({formatAmount(analysis.mostExpensive.amount)}
+            on {analysis.mostExpensive.date})
           {/if}
         </td>
       </tr>
       <tr>
         <td class="key-cell">Most frequent payee</td>
-        <td class="value-cell">{topDescription} ({topDescriptorCount} times)</td>
+        <td class="value-cell">{analysis.topDescription} ({analysis.topDescriptorCount} times)</td>
       </tr>
       <tr>
         <td class="key-cell">Top 20 payees (by amount)</td>
         <td class="value-cell">
           <ul>
-            {#each topPayees as p}
+            {#each analysis.topPayees as p}
               <li>{p.description}: {formatAmount(p.total)}</li>
             {/each}
           </ul>

@@ -20,3 +20,15 @@ export type Filter = {
   startDate: string | undefined;
   endDate: string | undefined;
 };
+
+export type TransactionAnalysis = {
+  totalCount: number;
+  mostExpensive: Transaction | null;
+  topDescription: string;
+  topDescriptorCount: number;
+  totalSpending: number;
+  avgSpending: number;
+  medianSpending: number;
+  weeklyAvgSpending: number;
+  topPayees: { description: string; total: number }[];
+};
