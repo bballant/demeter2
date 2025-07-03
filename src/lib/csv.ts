@@ -16,13 +16,14 @@ const COLUMN_MAPPINGS = {
   },
   chase: {
     date: 'Posting Date',
-    description: 'Name',
+    description: 'Description',
     amount: 'Amount'
   }
 };
 
 // Auto-detect which column mapping to use based on CSV headers
 function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
+  alert(`Headers: ${headers.join(', ')}`);
   // Check which mapping has the most matching headers
   const scores = Object.entries(COLUMN_MAPPINGS).map(([type, mapping]) => {
     const matches = Object.values(mapping).filter(col => headers.includes(col)).length;
@@ -56,6 +57,7 @@ export function parseCsv(
   text: string,
   filename: string
 ): Omit<Transaction, 'id'>[] {
+
   const results = Papa.parse<Record<string, string>>(text, {
     header: true,
     skipEmptyLines: true
@@ -69,9 +71,7 @@ export function parseCsv(
 
   return results.data.map((record: Record<string, string>) => {
     const rawDate = (record[mapping.date] || '').trim();
-    console.log(`Raw date: ${rawDate} (mapping type: ${mappingType})`);
     const date = normalizeDate(rawDate);
-    console.log(`Normalized date: ${date}`);
     const description = (record[mapping.description] || '').trim();
     const amountStr = (record[mapping.amount] || '0').trim();
     const amount = Math.round((parseFloat(amountStr) || 0) * 100);
