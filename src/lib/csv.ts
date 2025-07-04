@@ -4,10 +4,8 @@ import type { Transaction } from './types';
 import defaultMappings from './default-header-mappings.json';
 import fs from 'fs';
 
-// Load column mappings from config file or environment variable
-function loadColumnMappings() {
-  const configPath = process.env.DEMETER2_HEADER_MAPPING_CONFIG;
-  
+const loadColumnMappings = () => {
+  const configPath = undefined; //process.env.DEMETER2_HEADER_MAPPING_CONFIG;
   if (configPath) {
     try {
       const configContent = fs.readFileSync(configPath, 'utf-8');
@@ -17,7 +15,6 @@ function loadColumnMappings() {
       console.warn('Falling back to default mappings');
     }
   }
-  
   return defaultMappings;
 }
 
@@ -25,7 +22,6 @@ const COLUMN_MAPPINGS = loadColumnMappings();
 
 // Auto-detect which column mapping to use based on CSV headers
 function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
-  alert(`Headers: ${headers.join(', ')}`);
   // Check which mapping has the most matching headers
   const scores = Object.entries(COLUMN_MAPPINGS).map(([type, mapping]) => {
     const mappingValues = Object.values(mapping as Record<string, string>);
