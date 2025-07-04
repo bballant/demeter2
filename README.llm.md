@@ -20,6 +20,7 @@ When starting a new LLM session for this Tauri + SvelteKit project, load these f
 - `svelte.config.js` - SvelteKit configuration (static adapter)
 - `tsconfig.json` - TypeScript configuration
 - `vite.config.js` - Vite build configuration
+- `src/lib/default-header-mappings.json` - CSV column mapping configuration for different bank formats
 
 ## Quick Load Command
 
@@ -31,6 +32,7 @@ src/lib/db.ts
 src/lib/types.ts
 src/lib/csv.ts
 src/lib/analysis.ts
+src/lib/default-header-mappings.json
 src/routes/+page.svelte
 src/routes/+layout.ts
 src/routes/analysis/+page.svelte
@@ -72,3 +74,35 @@ vite.config.js
 - **Simple structure** - Main transactions view + analysis page
 - **Business logic** - Centralized in `src/lib/` directory
 - **TypeScript** - Fully typed with strict checking enabled
+
+## Tauri Frontend Limitations
+
+**IMPORTANT**: The SvelteKit frontend runs in a browser context, NOT Node.js. These Node.js APIs are NOT available:
+
+### File System & Process APIs (DO NOT USE)
+- `fs` module - Use `@tauri-apps/plugin-fs` instead
+- `process.env` - Use Vite environment variables (`import.meta.env.VITE_*`) instead
+- `process.cwd()`, `process.argv` - Not available in browser
+- `__dirname`, `__filename` - Use `import.meta.url` with `fileURLToPath()` for build-time paths only
+
+### Other Node.js APIs to Avoid
+- `path` module - Use `@tauri-apps/plugin-path` for runtime paths
+- `os` module - Use `@tauri-apps/plugin-os` instead
+- `child_process` - Use `@tauri-apps/plugin-shell` instead
+- `crypto` (Node.js version) - Use Web Crypto API or `@tauri-apps/plugin-crypto`
+- `buffer` (Node.js Buffer) - Use Uint8Array or ArrayBuffer
+- `stream` - Not available, use fetch/Response streams
+- `http`/`https` - Use fetch API instead
+- `url` (Node.js version) - Use Web URL API instead
+
+### Safe Alternatives
+- **File operations**: `@tauri-apps/plugin-fs`
+- **Environment variables**: Vite env vars (`import.meta.env.VITE_*`)
+- **Path operations**: `@tauri-apps/plugin-path`
+- **Shell commands**: `@tauri-apps/plugin-shell`
+- **HTTP requests**: `fetch()` API
+- **Dialogs**: `@tauri-apps/plugin-dialog`
+
+### Scripts vs Frontend
+- **Scripts** (like `scripts/generate-sample.ts`): Run in Node.js, can use all Node.js APIs
+- **Frontend** (`src/` files): Run in Tauri webview, must use browser/Tauri APIs only
