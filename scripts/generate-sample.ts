@@ -2,48 +2,69 @@ import fs from "fs";
 import Papa from "papaparse";
 import path from "path";
 
-interface FidelityRecord {
-  Date: string;
-  Transaction: string;
-  Name: string;
-  Memo: string;
-  Amount: string;
+// Load header mappings
+function loadHeaderMappings() {
+  const configPath = process.env.DEMETER2_HEADER_MAPPING_CONFIG || 
+                    path.join(__dirname, '../src/lib/default-header-mappings.json');
+  
+  try {
+    const configContent = fs.readFileSync(configPath, 'utf-8');
+    return JSON.parse(configContent);
+  } catch (error) {
+    console.error(`Failed to load header mappings from ${configPath}:`, error);
+    process.exit(1);
+  }
 }
 
-interface SampleRecord {
-  Date: string;
-  Transaction: string;
-  Name: string;
-  Memo: string;
-  Amount: string;
-}
+const HEADER_MAPPINGS = loadHeaderMappings();
 
 function perturbAmount(a: string): string {
   const delta = (Math.random() - 0.5) * 2; // ±1
   return (parseFloat(a) + delta).toFixed(2);
 }
 
-function tweakName(name: string): string {
-  if (name.includes("Nintendo")) return name.replace("Nintendo", "NintenDojo");
-  if (name.includes("Amazon")) return name.replace("Amazon", "Amazin");
-  return `${name} Co.`;
+function tweakDescription(description: string): string {
+  if (description.includes("Nintendo")) return description.replace("Nintendo", "NintenDojo");
+  if (description.includes("Amazon")) return description.replace("Amazon", "Amazin");
+  if (description.includes("Starbucks")) return description.replace("Starbucks", "StarBux");
+  if (description.includes("McDonald")) return description.replace("McDonald", "MacDonald");
+  return `${description} Co.`;
 }
 
-function makeSample(records: FidelityRecord[]): SampleRecord[] {
-  const processed = records.map(r => ({
-    Date: r.Date,
-    Transaction: r.Transaction,
-    Name: tweakName(r.Name.replace(/"/g, "")),
-    Memo: r.Memo,
-    Amount: perturbAmount(r.Amount),
-  }));
+function makeSample(records: Record<string, string>[], mappingType: string): Record<string, string>[] {
+  const mapping = HEADER_MAPPINGS[mappingType];
+  
+  const processed = records.map(record => {
+    const result = { ...record };
+    
+    // Perturb the amount
+    if (record[mapping.amount]) {
+      result[mapping.amount] = perturbAmount(record[mapping.amount]);
+    }
+    
+    // Tweak the description to anonymize
+    if (record[mapping.description]) {
+      result[mapping.description] = tweakDescription(record[mapping.description].replace(/"/g, ""));
+    }
+    
+    return result;
+  });
+  
   // randomly drop ~5%
   return processed.filter(() => Math.random() > 0.05);
 }
 
 function printUsage(): void {
-  console.log("Usage: npx tsx scripts/generate-sample.ts <input.csv> <output.csv>");
-  console.log("Example: npx tsx scripts/generate-sample.ts input.csv samples/output.csv");
+  console.log("Usage: npx tsx scripts/generate-sample.ts <mapping-type> <input.csv> <output.csv>");
+  console.log("Example: npx tsx scripts/generate-sample.ts fidelity input.csv samples/output.csv");
+  console.log("");
+  console.log("Environment variables:");
+  console.log("  DEMETER2_HEADER_MAPPING_CONFIG - Path to custom header mappings JSON file");
+  console.log("");
+  console.log("Supported mapping types:");
+  Object.keys(HEADER_MAPPINGS).forEach(type => {
+    console.log(`  - ${type}`);
+  });
 }
 
 async function main(): Promise<void> {
@@ -80,7 +101,7 @@ async function main(): Promise<void> {
     const input = fs.readFileSync(inputFile, "utf-8");
     
     // Parse CSV using papaparse
-    const parseResult = Papa.parse<FidelityRecord>(input, {
+    const parseResult = Papa.parse<Record<string, string>>(input, {
       header: true,
       skipEmptyLines: true
     });
@@ -90,7 +111,16 @@ async function main(): Promise<void> {
     }
     
     const records = parseResult.data;
-    const sample = makeSample(records);
+    
+    if (records.length === 0) {
+      console.error("No records found in input file");
+      process.exit(1);
+    }
+    
+    console.log(`Using mapping type: ${mappingType}`);
+    console.log(`Headers found: ${Object.keys(records[0]).join(', ')}`);
+    
+    const sample = makeSample(records, mappingType);
     
     // Convert back to CSV using papaparse
     const csvOutput = Papa.unparse(sample);
