@@ -111,8 +111,17 @@ async function main(): Promise<void> {
       skipEmptyLines: true
     });
     
-    if (parseResult.errors.length > 0) {
-      console.error("CSV parsing errors:", parseResult.errors);
+    // Filter out field mismatch errors (common with different CSV formats)
+    const significantErrors = parseResult.errors.filter(error => 
+      error.type !== 'FieldMismatch'
+    );
+    
+    if (significantErrors.length > 0) {
+      console.error("CSV parsing errors:", significantErrors);
+    }
+    
+    if (parseResult.errors.length > significantErrors.length) {
+      console.log(`Note: Ignored ${parseResult.errors.length - significantErrors.length} field mismatch warnings (common with varying CSV formats)`);
     }
     
     const records = parseResult.data;
