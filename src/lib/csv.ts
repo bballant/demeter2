@@ -28,7 +28,8 @@ function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
   alert(`Headers: ${headers.join(', ')}`);
   // Check which mapping has the most matching headers
   const scores = Object.entries(COLUMN_MAPPINGS).map(([type, mapping]) => {
-    const matches = Object.values(mapping).filter(col => headers.includes(col)).length;
+    const mappingValues = Object.values(mapping as Record<string, string>);
+    const matches = mappingValues.filter(col => headers.includes(col)).length;
     return { type: type as keyof typeof COLUMN_MAPPINGS, score: matches };
   });
 
