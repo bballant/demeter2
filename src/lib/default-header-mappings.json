@@ -1,0 +1,17 @@
+{
+  "default": {
+    "date": "Date",
+    "description": "Description",
+    "amount": "Amount"
+  },
+  "fidelity": {
+    "date": "Date",
+    "description": "Name",
+    "amount": "Amount"
+  },
+  "chase": {
+    "date": "Posting Date",
+    "description": "Description",
+    "amount": "Amount"
+  }
+}
