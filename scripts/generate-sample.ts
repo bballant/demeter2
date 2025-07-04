@@ -49,13 +49,20 @@ function printUsage(): void {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   
-  if (args.length !== 2) {
-    console.error("Error: Expected exactly 2 arguments");
+  if (args.length !== 3) {
+    console.error("Error: Expected exactly 3 arguments");
     printUsage();
     process.exit(1);
   }
 
-  const [inputFile, outputFile] = args;
+  const [mappingType, inputFile, outputFile] = args;
+
+  // Validate mapping type
+  if (!HEADER_MAPPINGS[mappingType]) {
+    console.error(`Error: Unknown mapping type '${mappingType}'`);
+    console.error("Supported types:", Object.keys(HEADER_MAPPINGS).join(', '));
+    process.exit(1);
+  }
 
   // Check if input file exists
   if (!fs.existsSync(inputFile)) {
