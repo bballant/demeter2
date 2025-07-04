@@ -1,6 +1,11 @@
 import fs from "fs";
 import Papa from "papaparse";
 import path from "path";
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load header mappings
 function loadHeaderMappings() {
