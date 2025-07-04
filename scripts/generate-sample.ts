@@ -28,12 +28,52 @@ function perturbAmount(a: string): string {
   return (parseFloat(a) + delta).toFixed(2);
 }
 
+// Orwellian and William Gibson inspired company names
+const ORWELLIAN_COMPANY_NAMES = [
+  "MiniTruth Corp", "ThoughtPol Industries", "BigBrother Systems", "Doublethink Dynamics", "NewSpeak Technologies",
+  "Memory Hole Media", "Victory Gin Co", "Telescreen Solutions", "Room 101 Security", "Oceania Enterprises",
+  "Eurasia Holdings", "Eastasia Group", "Prole Services", "Inner Party Ltd", "Outer Party Corp",
+  "Hate Week Productions", "Two Minutes Inc", "Goldstein Analytics", "Emmanuel Corp", "Airstrip One",
+  "Chestnut Tree Cafe", "Ministry of Love", "Ministry of Peace", "Ministry of Plenty", "Ministry of Truth",
+  "Cyberdyne Systems", "Tessier-Ashpool", "Maas Biolabs", "Hosaka Corporation", "Ono-Sendai", 
+  "Mitsubishi Bank of Asia", "Sense/Net", "Wintermute AI", "Neuromancer Corp", "Matrix Industries",
+  "ICE Security", "Sprawl Dynamics", "Night City Holdings", "Chiba Systems", "Freeside Station",
+  "Zion Collective", "Panther Moderns", "Screaming Fist", "Chrome Solutions", "Burning Chrome",
+  "Count Zero Corp", "Mona Lisa Overdrive", "Virtual Light Co", "Idoru Entertainment", "All Tomorrow's Parties",
+  "Pattern Recognition", "Spook Country", "Zero History Inc", "The Peripheral", "Agency Solutions",
+  "Jackpot Industries", "Stub Dynamics", "Flynne Corp", "Wilf Holdings", "Netherton Systems",
+  "Synth Corp", "Replicant Industries", "Blade Runner Security", "Tyrell Corporation", "Wallace Corp",
+  "Weyland-Yutani", "Umbrella Corporation", "Cybertronics", "Skynet Defense", "Aperture Science",
+  "Black Mesa Research", "Vault-Tec", "RoboCop Security", "OCP Industries", "Omni Consumer Products",
+  "Soylent Corporation", "HAL Systems", "Discovery One", "Jupiter Mining Corp", "Red Dwarf Industries",
+  "Nostromo Shipping", "LV-426 Mining", "Alien Biosystems", "Predator Defense", "Colonial Marines",
+  "Starship Troopers", "Mobile Infantry", "Arachnid Extermination", "Federation Fleet", "Roughnecks Inc",
+  "Total Recall Memory", "Rekall Incorporated", "Mars Colony Corp", "Mutant Registration", "Minority Report",
+  "PreCrime Division", "Thought Police", "Memory Implants Inc", "Dream Merchants", "Reality Check Corp",
+  "Simulation Theory", "Glitch Industries", "Bug Report Systems", "Patch Management", "Version Control Corp",
+  "Neural Interface Co", "Brain-Computer Link", "Consciousness Upload", "Digital Afterlife", "Ghost in Shell",
+  "Stand Alone Complex", "Section 9 Security", "Laughing Man Corp", "Puppet Master Inc", "Tachikoma Systems",
+  "Akira Pharmaceuticals", "Neo-Tokyo Holdings", "Kaneda Motorcycles", "Tetsuo Dynamics", "Psychic Powers Inc",
+  "Esper Detection", "Blade Runner Realty", "Off-World Colonies", "Spinner Transport", "Voight-Kampff Corp"
+];
+
+// Map to store consistent description replacements
+const descriptionMappings = new Map<string, string>();
+
+function getRandomOrwellianName(): string {
+  return ORWELLIAN_COMPANY_NAMES[Math.floor(Math.random() * ORWELLIAN_COMPANY_NAMES.length)];
+}
+
 function tweakDescription(description: string): string {
-  if (description.includes("Nintendo")) return description.replace("Nintendo", "NintenDojo");
-  if (description.includes("Amazon")) return description.replace("Amazon", "Amazin");
-  if (description.includes("Starbucks")) return description.replace("Starbucks", "StarBux");
-  if (description.includes("McDonald")) return description.replace("McDonald", "MacDonald");
-  return `${description} Co.`;
+  // Check if we already have a mapping for this description
+  if (descriptionMappings.has(description)) {
+    return descriptionMappings.get(description)!;
+  }
+  
+  // Create a new mapping
+  const newDescription = getRandomOrwellianName();
+  descriptionMappings.set(description, newDescription);
+  return newDescription;
 }
 
 function makeSample(records: Record<string, string>[], mappingType: string): Record<string, string>[] {
