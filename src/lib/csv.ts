@@ -2,23 +2,8 @@ import Papa from 'papaparse';
 import type { Omit } from 'utility-types';
 import type { Transaction } from './types';
 import defaultMappings from './default-header-mappings.json';
-import fs from 'fs';
 
-const loadColumnMappings = () => {
-  const configPath = undefined; //process.env.DEMETER2_HEADER_MAPPING_CONFIG;
-  if (configPath) {
-    try {
-      const configContent = fs.readFileSync(configPath, 'utf-8');
-      return JSON.parse(configContent);
-    } catch (error) {
-      console.warn(`Failed to load custom header mappings from ${configPath}:`, error);
-      console.warn('Falling back to default mappings');
-    }
-  }
-  return defaultMappings;
-}
-
-const COLUMN_MAPPINGS = loadColumnMappings();
+const COLUMN_MAPPINGS = defaultMappings;
 
 // Auto-detect which column mapping to use based on CSV headers
 function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {

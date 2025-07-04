@@ -7,10 +7,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load header mappings
+// Load header mappings from the shared JSON file
 function loadHeaderMappings() {
-  const configPath = process.env.DEMETER2_HEADER_MAPPING_CONFIG || 
-                    path.join(__dirname, '../src/lib/default-header-mappings.json');
+  const configPath = path.join(__dirname, '../src/lib/default-header-mappings.json');
   
   try {
     const configContent = fs.readFileSync(configPath, 'utf-8');
@@ -102,9 +101,6 @@ function makeSample(records: Record<string, string>[], mappingType: string): Rec
 function printUsage(): void {
   console.log("Usage: npx tsx scripts/generate-sample.ts <mapping-type> <input.csv> <output.csv>");
   console.log("Example: npx tsx scripts/generate-sample.ts fidelity input.csv samples/output.csv");
-  console.log("");
-  console.log("Environment variables:");
-  console.log("  DEMETER2_HEADER_MAPPING_CONFIG - Path to custom header mappings JSON file");
   console.log("");
   console.log("Supported mapping types:");
   Object.keys(HEADER_MAPPINGS).forEach(type => {
