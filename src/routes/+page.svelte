@@ -2,7 +2,7 @@
   import { parseCsv } from '../lib/csv';
   import type { Transaction, Filter, Sort, SortBy } from '../lib/types';
   import { onMount } from 'svelte';
-  import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
+  import { getTransactions, addTransaction, getFilenames, deleteByIds } from '../lib/db';
   import { DatePicker } from '@svelte-plugins/datepicker';
 
   let datePickerIsOpen = $state(false);
@@ -27,12 +27,12 @@
   let datePickerStartDate = $derived(filter.startDate ? filter.startDate.toISOString().split('T')[0] : null);
   let datePickerEndDate = $derived(filter.endDate ? filter.endDate.toISOString().split('T')[0] : null);
 
-  const clearFilter_ = () => {
+  const clearFilter = () => {
     filter = { filename: undefined, startDate: null, endDate: null };
     datePickerIsOpen = false;
   };
 
-  const getTransactions_ = async () => {
+  const getTransactionsLocal = async () => {
     try {
       const result = await getTransactions();
       transactions = result;
@@ -41,11 +41,11 @@
     }
   };
 
-  const addTransaction_ = async (tx: Omit<Transaction, "id">) => {
+  const addTransactionLocal = async (tx: Omit<Transaction, "id">) => {
     try {
       await addTransaction(tx);
-      await getTransactions_();
-      await loadFilenames_();
+      await getTransactionsLocal();
+      await loadFilenames();
     } catch (error) {
       console.log(error);
     }
@@ -59,12 +59,12 @@
     const endDateStr = url.searchParams.get('endDate');
     filter.startDate = startDateStr ? new Date(startDateStr) : null;
     filter.endDate = endDateStr ? new Date(endDateStr) : null;
-    getTransactions_();
-    loadFilenames_();
-    filterTransactions_();
+    getTransactionsLocal();
+    loadFilenames();
+    filterTransactions();
   });
 
-const loadFilenames_ = async () => {
+const loadFilenames = async () => {
   try {
     const names = await getFilenames();
     filenames = ["All", ...names];
@@ -73,7 +73,7 @@ const loadFilenames_ = async () => {
   }
 };
 
-const deleteByFilter_ = async () => {
+const deleteByFilter = async () => {
   try {
     const all = await getTransactions();
     const toDelete = all.filter(tx =>
@@ -85,8 +85,8 @@ const deleteByFilter_ = async () => {
     await deleteByIds(ids);
     // reset filters after deletion
     filter = { filename: undefined, startDate: null, endDate: null };
-    await getTransactions_();
-    await loadFilenames_();
+    await getTransactionsLocal();
+    await loadFilenames();
   } catch (error) {
     console.log(error);
   }
@@ -101,11 +101,11 @@ const handleCSVUpload = async (event: Event) => {
   for (const tx of txs) {
     await addTransaction(tx);
   }
-  await getTransactions_();
-  await loadFilenames_();
+  await getTransactionsLocal();
+  await loadFilenames();
 };
 
-const filterTransactions_ = async () => {
+const filterTransactions = async () => {
   try {
     let result = await getTransactions();
     if (filter.filename !== "All") {
@@ -145,7 +145,7 @@ const handleDatePickerChange = () => {
   // Sync DatePicker string values back to filter Date objects
   filter.startDate = datePickerStartDate ? new Date(datePickerStartDate) : null;
   filter.endDate = datePickerEndDate ? new Date(datePickerEndDate) : null;
-  filterTransactions_();
+  filterTransactions();
 };
 
 const toggleSort = (by: SortBy) => {
@@ -155,7 +155,7 @@ const toggleSort = (by: SortBy) => {
     sort.by = by;
     sort.order = 'asc';
   }
-  filterTransactions_();
+  filterTransactions();
 };
 
 </script>
@@ -163,7 +163,7 @@ const toggleSort = (by: SortBy) => {
   <div class="button-row">
     <button onclick={() => fileInput.click()}>Upload CSV</button>
     <input type="file" accept=".csv" bind:this={fileInput} onchange={(e) => handleCSVUpload(e)} style="display:none" />
-    <select bind:value={filter.filename} onchange={() => filterTransactions_()}>
+    <select bind:value={filter.filename} onchange={() => filterTransactions()}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
         <option value={fname}>{fname}</option>
@@ -186,7 +186,7 @@ const toggleSort = (by: SortBy) => {
         Select Date Range
       {/if}
     </button>
-    <button type="button" onclick={() => { clearFilter_(); filterTransactions_(); }}>
+    <button type="button" onclick={() => { clearFilter(); filterTransactions(); }}>
       Clear
     </button>
     <button
@@ -201,7 +201,7 @@ const toggleSort = (by: SortBy) => {
     >
       Analysis
     </button>
-    <button onclick={() => deleteByFilter_()}>Delete Shown</button>
+    <button onclick={() => deleteByFilter()}>Delete Shown</button>
     <button type="button" onclick={() => (showAbout = true)} style="margin-left: auto;">?</button>
   </div>
   <table>
