@@ -17,8 +17,8 @@ export type Sort = {
 
 export type Filter = {
   filename: string | undefined;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  startDate: Date | null; // null for DatePicker compatibility
+  endDate: Date | null; // null for DatePicker compatibility
 };
 
 export type TransactionAnalysis = {

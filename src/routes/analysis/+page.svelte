@@ -5,8 +5,8 @@
   import type { TransactionAnalysis } from '../../lib/types';
 
   let filename: string | undefined;
-  let startDate: Date | undefined;
-  let endDate: Date | undefined;
+  let startDate: Date | null;
+  let endDate: Date | null;
   let analysis: TransactionAnalysis = {
     totalCount: 0,
     mostExpensive: null,
@@ -24,8 +24,8 @@
     filename = url.searchParams.get('filename') || undefined;
     const startDateStr = url.searchParams.get('startDate');
     const endDateStr = url.searchParams.get('endDate');
-    startDate = startDateStr ? new Date(startDateStr) : undefined;
-    endDate = endDateStr ? new Date(endDateStr) : undefined;
+    startDate = startDateStr ? new Date(startDateStr) : null;
+    endDate = endDateStr ? new Date(endDateStr) : null;
 
     let txs = await getTransactions();
     if (filename && filename !== 'All') {

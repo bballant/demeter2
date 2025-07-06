@@ -17,7 +17,7 @@
 
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
-  let filter: Filter = { filename: undefined, startDate: undefined, endDate: undefined };
+  let filter: Filter = { filename: undefined, startDate: null, endDate: null };
   let fileInput: HTMLInputElement;
   let sort: Sort = { by: 'date', order: 'asc' };
   let showAbout = false;
@@ -47,8 +47,8 @@
     filter.filename = url.searchParams.get('filename') || undefined;
     const startDateStr = url.searchParams.get('startDate');
     const endDateStr = url.searchParams.get('endDate');
-    filter.startDate = startDateStr ? new Date(startDateStr) : undefined;
-    filter.endDate = endDateStr ? new Date(endDateStr) : undefined;
+    filter.startDate = startDateStr ? new Date(startDateStr) : null;
+    filter.endDate = endDateStr ? new Date(endDateStr) : null;
     getTransactions_();
     loadFilenames_();
     filterTransactions_();
@@ -74,7 +74,7 @@ async function deleteByFilter_() {
     const ids = toDelete.map(tx => tx.id);
     await deleteByIds(ids);
     // reset filters after deletion
-    filter = { filename: undefined, startDate: undefined, endDate: undefined };
+    filter = { filename: undefined, startDate: null, endDate: null };
     await getTransactions_();
     await loadFilenames_();
   } catch (error) {
@@ -163,7 +163,7 @@ function toggleSort(by: SortBy) {
       <input type="text" placeholder="Select date range" value={filter.startDate ? filter.startDate.toISOString().split('T')[0] : ''} onclick={toggleDatePicker} readonly />
     </DatePicker>
 
-    <button type="button" onclick={() => { filter = { filename: undefined, startDate: undefined, endDate: undefined }; filterTransactions_(); }}>
+    <button type="button" onclick={() => { filter = { filename: undefined, startDate: null, endDate: null }; filterTransactions_(); }}>
       Clear
     </button>
     <button
