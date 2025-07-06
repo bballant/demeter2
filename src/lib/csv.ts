@@ -6,7 +6,7 @@ import defaultMappings from './default-header-mappings.json';
 const COLUMN_MAPPINGS = defaultMappings;
 
 // Auto-detect which column mapping to use based on CSV headers
-function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
+const detectMappingType = (headers: string[]): keyof typeof COLUMN_MAPPINGS => {
   // Check which mapping has the most matching headers
   const scores = Object.entries(COLUMN_MAPPINGS).map(([type, mapping]) => {
     const mappingValues = Object.values(mapping as Record<string, string>);
@@ -15,10 +15,10 @@ function detectMappingType(headers: string[]): keyof typeof COLUMN_MAPPINGS {
   });
 
   return scores.sort((a, b) => b.score - a.score)[0]?.type || 'default';
-}
+};
 
 // Convert MM/DD/YYYY format to YYYY-MM-DD format
-function normalizeDate(dateStr: string): string {
+const normalizeDate = (dateStr: string): string => {
   const trimmed = dateStr.trim();
 
   // Check if it matches MM/DD/YYYY format
@@ -35,12 +35,12 @@ function normalizeDate(dateStr: string): string {
 
   // Return as-is if not MM/DD/YYYY format
   return trimmed;
-}
+};
 
-export function parseCsv(
+export const parseCsv = (
   text: string,
   filename: string
-): Omit<Transaction, 'id'>[] {
+): Omit<Transaction, 'id'>[] => {
 
   const results = Papa.parse<Record<string, string>>(text, {
     header: true,
@@ -63,4 +63,4 @@ export function parseCsv(
 
     return { date, description, amount, filename };
   });
-}
+};
