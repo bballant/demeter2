@@ -100,6 +100,7 @@ async function filterTransactions_() {
       result = result.filter(tx => tx.filename === filter.filename);
     }
     const startDate = filter.startDate;
+    console.log("Filter startDate:", startDate);
     if (startDate) {
       console.log("Filtering from start date:", filter.startDate);
       console.log(result[0]?.date);
@@ -150,14 +151,15 @@ function toggleSort(by: SortBy) {
       {/each}
     </select>
 
-    <DatePicker bind:value={filter.startDate} bind:isOpen={datePickerIsOpen} on:dateSelected={filterTransactions_}>
+    <DatePicker
+      isRange={true}
+      bind:startDate={filter.startDate}
+      bind:endDate={filter.endDate}
+      bind:isOpen={datePickerIsOpen}
+    >
       <input type="text" placeholder="Select start date" bind:value={filter.startDate} onclick={toggleDatePicker} readonly />
     </DatePicker>
-    <input
-      type="date"
-      bind:value={filter.endDate}
-      onblur={filterTransactions_}
-    />
+
     <button type="button" onclick={() => { filter = { filename: undefined, startDate: undefined, endDate: undefined }; filterTransactions_(); }}>
       Clear
     </button>
