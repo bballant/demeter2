@@ -28,6 +28,12 @@
   let sort: Sort = { by: 'date', order: 'asc' };
   let showAbout = false;
 
+  function clearFilter_() {
+    filter = { filename: undefined, startDate: null, endDate: null };
+    datePickerDates = { startDate: null, endDate: null };
+    datePickerIsOpen = false;
+  }
+
   async function getTransactions_() {
     try {
       const result = await getTransactions();
@@ -180,8 +186,7 @@ function toggleSort(by: SortBy) {
         {/if}
       </button>
     </DatePicker>
-
-    <button type="button" onclick={() => { filter = { filename: undefined, startDate: null, endDate: null }; filterTransactions_(); }}>
+    <button type="button" onclick={() => { clearFilter_(); filterTransactions_(); }}>
       Clear
     </button>
     <button
