@@ -51,6 +51,99 @@
     }
   };
 
+  const loadFilenames = async () => {
+    try {
+      const names = await getFilenames();
+      filenames = ["All", ...names];
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteByFilter = async () => {
+    try {
+      const all = await getTransactions();
+      const toDelete = all.filter(tx =>
+        (filter.filename && filter.filename !== "All" ? tx.filename === filter.filename : true) &&
+        (filter.startDate ? tx.date >= filter.startDate : true) &&
+        (filter.endDate ? tx.date <= filter.endDate : true)
+      );
+      const ids = toDelete.map(tx => tx.id);
+      await deleteByIds(ids);
+      // reset filters after deletion
+      filter = { filename: undefined, startDate: null, endDate: null };
+      await getTransactionsLocal();
+      await loadFilenames();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCSVUpload = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const txs = parseCsv(text, file.name);
+    for (const tx of txs) {
+      await addTransaction(tx);
+    }
+    await getTransactionsLocal();
+    await loadFilenames();
+  };
+
+  const filterTransactions = async () => {
+    try {
+      let result = await getTransactions();
+      if (filter.filename !== "All") {
+        result = result.filter(tx => tx.filename === filter.filename);
+      }
+      const startDate = filter.startDate;
+      console.log("Filter startDate:", startDate);
+      if (startDate) {
+        console.log("Filtering from start date:", filter.startDate);
+        console.log(result[0]?.date);
+        console.log(result[0]?.date >= startDate);
+        result = result.filter(tx => tx.date >= startDate);
+      }
+      const endDate = filter.endDate;
+      if (endDate) {
+        result = result.filter(tx => tx.date <= endDate);
+      }
+      // apply sorting
+      result.sort((a, b) => {
+        let cmp = 0;
+        if (sort.by === 'date') {
+          cmp = a.date.getTime() - b.date.getTime();
+        } else if (sort.by === 'description') {
+          cmp = a.description.localeCompare(b.description);
+        } else if (sort.by === 'amount') {
+          cmp = a.amount - b.amount;
+        }
+        return sort.order === 'asc' ? cmp : -cmp;
+      });
+      transactions = result;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDatePickerChange = () => {
+    // Sync DatePicker string values back to filter Date objects
+    filter.startDate = datePickerStartDate ? new Date(datePickerStartDate) : null;
+    filter.endDate = datePickerEndDate ? new Date(datePickerEndDate) : null;
+    filterTransactions();
+  };
+
+  const toggleSort = (by: SortBy) => {
+    if (sort.by === by) {
+      sort.order = sort.order === 'asc' ? 'desc' : 'asc';
+    } else {
+      sort.by = by;
+      sort.order = 'asc';
+    }
+    filterTransactions();
+  };
 
   onMount(() => {
     const url = new URL(window.location.href);
@@ -63,100 +156,6 @@
     loadFilenames();
     filterTransactions();
   });
-
-const loadFilenames = async () => {
-  try {
-    const names = await getFilenames();
-    filenames = ["All", ...names];
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const deleteByFilter = async () => {
-  try {
-    const all = await getTransactions();
-    const toDelete = all.filter(tx =>
-      (filter.filename && filter.filename !== "All" ? tx.filename === filter.filename : true) &&
-      (filter.startDate ? tx.date >= filter.startDate : true) &&
-      (filter.endDate ? tx.date <= filter.endDate : true)
-    );
-    const ids = toDelete.map(tx => tx.id);
-    await deleteByIds(ids);
-    // reset filters after deletion
-    filter = { filename: undefined, startDate: null, endDate: null };
-    await getTransactionsLocal();
-    await loadFilenames();
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const handleCSVUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  const text = await file.text();
-  const txs = parseCsv(text, file.name);
-  for (const tx of txs) {
-    await addTransaction(tx);
-  }
-  await getTransactionsLocal();
-  await loadFilenames();
-};
-
-const filterTransactions = async () => {
-  try {
-    let result = await getTransactions();
-    if (filter.filename !== "All") {
-      result = result.filter(tx => tx.filename === filter.filename);
-    }
-    const startDate = filter.startDate;
-    console.log("Filter startDate:", startDate);
-    if (startDate) {
-      console.log("Filtering from start date:", filter.startDate);
-      console.log(result[0]?.date);
-      console.log(result[0]?.date >= startDate);
-      result = result.filter(tx => tx.date >= startDate);
-    }
-    const endDate = filter.endDate;
-    if (endDate) {
-      result = result.filter(tx => tx.date <= endDate);
-    }
-    // apply sorting
-    result.sort((a, b) => {
-      let cmp = 0;
-      if (sort.by === 'date') {
-        cmp = a.date.getTime() - b.date.getTime();
-      } else if (sort.by === 'description') {
-        cmp = a.description.localeCompare(b.description);
-      } else if (sort.by === 'amount') {
-        cmp = a.amount - b.amount;
-      }
-      return sort.order === 'asc' ? cmp : -cmp;
-    });
-    transactions = result;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const handleDatePickerChange = () => {
-  // Sync DatePicker string values back to filter Date objects
-  filter.startDate = datePickerStartDate ? new Date(datePickerStartDate) : null;
-  filter.endDate = datePickerEndDate ? new Date(datePickerEndDate) : null;
-  filterTransactions();
-};
-
-const toggleSort = (by: SortBy) => {
-  if (sort.by === by) {
-    sort.order = sort.order === 'asc' ? 'desc' : 'asc';
-  } else {
-    sort.by = by;
-    sort.order = 'asc';
-  }
-  filterTransactions();
-};
 
 </script>
 <main class="container">
