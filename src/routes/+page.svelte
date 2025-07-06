@@ -150,7 +150,7 @@ function toggleSort(by: SortBy) {
       {/each}
     </select>
 
-    <DatePicker bind:isOpen={datePickerIsOpen} on:dateSelected={filterTransactions_}>
+    <DatePicker bind:value={filter.startDate} bind:isOpen={datePickerIsOpen} on:dateSelected={filterTransactions_}>
       <input type="text" placeholder="Select start date" bind:value={filter.startDate} onclick={toggleDatePicker} readonly />
     </DatePicker>
     <input
