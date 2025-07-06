@@ -5,8 +5,8 @@
   import type { TransactionAnalysis } from '../../lib/types';
 
   let filename: string | undefined;
-  let startDate: string | undefined;
-  let endDate: string | undefined;
+  let startDate: Date | undefined;
+  let endDate: Date | undefined;
   let analysis: TransactionAnalysis = {
     totalCount: 0,
     mostExpensive: null,
@@ -21,9 +21,11 @@
 
   onMount(async () => {
     const url = new URL(window.location.href);
-    filename  = url.searchParams.get('filename') || undefined;
-    startDate = url.searchParams.get('startDate') || undefined;
-    endDate   = url.searchParams.get('endDate')   || undefined;
+    filename = url.searchParams.get('filename') || undefined;
+    const startDateStr = url.searchParams.get('startDate');
+    const endDateStr = url.searchParams.get('endDate');
+    startDate = startDateStr ? new Date(startDateStr) : undefined;
+    endDate = endDateStr ? new Date(endDateStr) : undefined;
 
     let txs = await getTransactions();
     if (filename && filename !== 'All') {
@@ -51,8 +53,8 @@
     {:else}
       Filtered on
       {#if filename} filename: {filename}{/if}
-      {#if startDate} from {startDate}{/if}
-      {#if endDate} to {endDate}{/if}
+      {#if startDate} from {startDate.toISOString().split('T')[0]}{/if}
+      {#if endDate} to {endDate.toISOString().split('T')[0]}{/if}
     {/if}
   </p>
   {#if analysis.totalCount === 0}
@@ -87,7 +89,7 @@
             No transactions available
           {:else}
             {analysis.mostExpensive.description} ({formatAmount(analysis.mostExpensive.amount)}
-            on {analysis.mostExpensive.date})
+            on {analysis.mostExpensive.date.toISOString().split('T')[0]})
           {/if}
         </td>
       </tr>
@@ -112,8 +114,8 @@
     onclick={() => {
       const params = new URLSearchParams({
         filename: filename ?? "",
-        startDate: startDate ?? "",
-        endDate: endDate ?? ""
+        startDate: startDate ? startDate.toISOString().split('T')[0] : "",
+        endDate: endDate ? endDate.toISOString().split('T')[0] : ""
       });
       window.location.href = `/?${params.toString()}`;
     }}

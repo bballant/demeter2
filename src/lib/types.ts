@@ -1,6 +1,6 @@
 export type Transaction = {
   id: number;
-  date: string;
+  date: Date;
   description: string;
   amount: number;
   filename: string | undefined;
@@ -17,8 +17,8 @@ export type Sort = {
 
 export type Filter = {
   filename: string | undefined;
-  startDate: string | undefined;
-  endDate: string | undefined;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
 };
 
 export type TransactionAnalysis = {

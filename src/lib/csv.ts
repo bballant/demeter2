@@ -55,7 +55,8 @@ export function parseCsv(
 
   return results.data.map((record: Record<string, string>) => {
     const rawDate = (record[mapping.date] || '').trim();
-    const date = normalizeDate(rawDate);
+    const normalizedDateStr = normalizeDate(rawDate);
+    const date = new Date(normalizedDateStr);
     const description = (record[mapping.description] || '').trim();
     const amountStr = (record[mapping.amount] || '0').trim();
     const amount = Math.round((parseFloat(amountStr) || 0) * 100);

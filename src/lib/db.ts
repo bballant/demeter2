@@ -13,13 +13,17 @@ const getDb = async (): Promise<Database> => {
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   const db = await getDb();
-  return await db.select("SELECT * FROM txn");
+  const rows = await db.select("SELECT * FROM txn");
+  return rows.map(row => ({
+    ...row,
+    date: new Date(row.date)
+  }));
 };
 
 export const addTransaction = async (tx: Omit<Transaction, "id">): Promise<void> => {
   const db = await getDb();
   await db.execute("INSERT INTO txn (date, description, amount, filename) VALUES ($1, $2, $3, $4)", [
-    tx.date,
+    tx.date.toISOString().split('T')[0],
     tx.description,
     tx.amount,
     tx.filename,

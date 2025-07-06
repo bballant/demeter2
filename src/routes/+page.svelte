@@ -45,8 +45,10 @@
   onMount(() => {
     const url = new URL(window.location.href);
     filter.filename = url.searchParams.get('filename') || undefined;
-    filter.startDate = url.searchParams.get('startDate') || undefined;
-    filter.endDate = url.searchParams.get('endDate') || undefined;
+    const startDateStr = url.searchParams.get('startDate');
+    const endDateStr = url.searchParams.get('endDate');
+    filter.startDate = startDateStr ? new Date(startDateStr) : undefined;
+    filter.endDate = endDateStr ? new Date(endDateStr) : undefined;
     getTransactions_();
     loadFilenames_();
     filterTransactions_();
@@ -115,7 +117,7 @@ async function filterTransactions_() {
     result.sort((a, b) => {
       let cmp = 0;
       if (sort.by === 'date') {
-        cmp = a.date.localeCompare(b.date);
+        cmp = a.date.getTime() - b.date.getTime();
       } else if (sort.by === 'description') {
         cmp = a.description.localeCompare(b.description);
       } else if (sort.by === 'amount') {
@@ -156,8 +158,9 @@ function toggleSort(by: SortBy) {
       bind:startDate={filter.startDate}
       bind:endDate={filter.endDate}
       bind:isOpen={datePickerIsOpen}
+      on:dateSelected={filterTransactions_}
     >
-      <input type="text" placeholder="Select start date" bind:value={filter.startDate} onclick={toggleDatePicker} readonly />
+      <input type="text" placeholder="Select date range" value={filter.startDate ? filter.startDate.toISOString().split('T')[0] : ''} onclick={toggleDatePicker} readonly />
     </DatePicker>
 
     <button type="button" onclick={() => { filter = { filename: undefined, startDate: undefined, endDate: undefined }; filterTransactions_(); }}>
@@ -167,8 +170,8 @@ function toggleSort(by: SortBy) {
       onclick={() => {
         const params = new URLSearchParams({
           filename: filter.filename ?? "",
-          startDate:  filter.startDate  ?? "",
-          endDate:    filter.endDate    ?? "",
+          startDate: filter.startDate ? filter.startDate.toISOString().split('T')[0] : "",
+          endDate: filter.endDate ? filter.endDate.toISOString().split('T')[0] : "",
         });
         window.location.href = `/analysis?${params.toString()}`;
       }}
@@ -198,7 +201,7 @@ function toggleSort(by: SortBy) {
       {#each transactions as tx}
         <tr>
           <td>{tx.id}</td>
-          <td>{tx.date}</td>
+          <td>{tx.date.toISOString().split('T')[0]}</td>
           <td>{tx.description}</td>
           <td>{formatAmount(tx.amount)}</td>
           <td>{tx.filename}</td>
