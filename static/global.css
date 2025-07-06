@@ -112,3 +112,11 @@ For now no dark theme
   }
 }
 */
+
+/* DatePicker button styling to match other buttons */
+:global(.date-picker-button) {
+  height: 100% !important;
+  min-height: 2.5rem !important;
+  padding: 0.4em 1.2em !important;
+  box-sizing: border-box !important;
+}

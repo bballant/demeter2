@@ -176,7 +176,7 @@ function toggleSort(by: SortBy) {
       bind:isOpen={datePickerIsOpen}
       onDateChange={filterTransactions_}
     >
-      <button type="button" onclick={toggleDatePicker}>
+      <button type="button" class="date-picker-button" onclick={toggleDatePicker}>
         {#if filter.startDate && filter.endDate}
           {filter.startDate.toISOString().split('T')[0]} - {filter.endDate.toISOString().split('T')[0]}
         {:else if filter.startDate}
