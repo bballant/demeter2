@@ -1,5 +1,4 @@
 <script lang="ts">
-  import '@svelte-plugins/datepicker/dist/datepicker.css';
   import { parseCsv } from '../lib/csv';
   import type { Transaction, Filter, Sort, SortBy } from '../lib/types';
   import { onMount } from 'svelte';
@@ -7,13 +6,7 @@
   import { DatePicker } from '@svelte-plugins/datepicker';
 
   let datePickerIsOpen = false;
-
-  const toggleDatePicker = () => {
-    console.log("Toggling date picker");
-    console.log("DatePicker isOpen WAS:", datePickerIsOpen);
-    console.log("DatePicker isOpen IS:", !datePickerIsOpen);
-    return datePickerIsOpen = !datePickerIsOpen;
-  };
+  const toggleDatePicker = () => (datePickerIsOpen = !datePickerIsOpen);
 
   function formatAmount(cents: number): string {
     const sign = cents < 0 ? '-' : '';
