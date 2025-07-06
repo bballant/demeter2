@@ -8,12 +8,12 @@
   let datePickerIsOpen = $state(false);
   const toggleDatePicker = () => (datePickerIsOpen = !datePickerIsOpen);
 
-  function formatAmount(cents: number): string {
+  const formatAmount = (cents: number): string => {
     const sign = cents < 0 ? '-' : '';
     const abs = Math.abs(cents);
     const dollars = (abs / 100).toFixed(2);
     return `${sign}$${dollars}`;
-  }
+  };
 
   let transactions = $state<Transaction[]>([]);
   let filenames = $state<string[]>([]);
@@ -27,21 +27,21 @@
   let datePickerStartDate = $derived(filter.startDate ? filter.startDate.toISOString().split('T')[0] : null);
   let datePickerEndDate = $derived(filter.endDate ? filter.endDate.toISOString().split('T')[0] : null);
 
-  function clearFilter_() {
+  const clearFilter_ = () => {
     filter = { filename: undefined, startDate: null, endDate: null };
     datePickerIsOpen = false;
-  }
+  };
 
-  async function getTransactions_() {
+  const getTransactions_ = async () => {
     try {
       const result = await getTransactions();
       transactions = result;
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  async function addTransaction_(tx: Omit<Transaction, "id">) {
+  const addTransaction_ = async (tx: Omit<Transaction, "id">) => {
     try {
       await addTransaction(tx);
       await getTransactions_();
@@ -49,7 +49,7 @@
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
 
   onMount(() => {
@@ -64,16 +64,16 @@
     filterTransactions_();
   });
 
-async function loadFilenames_() {
+const loadFilenames_ = async () => {
   try {
     const names = await getFilenames();
     filenames = ["All", ...names];
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-async function deleteByFilter_() {
+const deleteByFilter_ = async () => {
   try {
     const all = await getTransactions();
     const toDelete = all.filter(tx =>
@@ -90,9 +90,9 @@ async function deleteByFilter_() {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-async function handleCSVUpload(event: Event) {
+const handleCSVUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -103,9 +103,9 @@ async function handleCSVUpload(event: Event) {
   }
   await getTransactions_();
   await loadFilenames_();
-}
+};
 
-async function filterTransactions_() {
+const filterTransactions_ = async () => {
   try {
     let result = await getTransactions();
     if (filter.filename !== "All") {
@@ -139,16 +139,16 @@ async function filterTransactions_() {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-function handleDatePickerChange() {
+const handleDatePickerChange = () => {
   // Sync DatePicker string values back to filter Date objects
   filter.startDate = datePickerStartDate ? new Date(datePickerStartDate) : null;
   filter.endDate = datePickerEndDate ? new Date(datePickerEndDate) : null;
   filterTransactions_();
-}
+};
 
-function toggleSort(by: SortBy) {
+const toggleSort = (by: SortBy) => {
   if (sort.by === by) {
     sort.order = sort.order === 'asc' ? 'desc' : 'asc';
   } else {
@@ -156,7 +156,7 @@ function toggleSort(by: SortBy) {
     sort.order = 'asc';
   }
   filterTransactions_();
-}
+};
 
 </script>
 <main class="container">

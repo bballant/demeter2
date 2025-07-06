@@ -38,11 +38,11 @@
     analysis = analyzeTransactions(txs);
   });
 
-  function formatAmount(cents: number): string {
+  const formatAmount = (cents: number): string => {
     const sign = cents < 0 ? '-' : '';
     const abs = Math.abs(cents);
     return `${sign}$${(abs / 100).toFixed(2)}`;
-  }
+  };
 </script>
 
 <main class="container">
