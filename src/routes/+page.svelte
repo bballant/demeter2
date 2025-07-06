@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '@svelte-plugins/datepicker/dist/datepicker.css';
   import { parseCsv } from '../lib/csv';
   import type { Transaction, Filter, Sort, SortBy } from '../lib/types';
   import { onMount } from 'svelte';
@@ -156,15 +157,9 @@ function toggleSort(by: SortBy) {
       {/each}
     </select>
 
-    <DatePicker bind:datePickerIsOpen onblur={filterTransactions_}>
-      <input type="text" placeholder="Select date" bind:value={filter.startDate} onclick={toggleDatePicker} />
+    <DatePicker bind:isOpen={datePickerIsOpen} on:dateSelected={filterTransactions_}>
+      <input type="text" placeholder="Select start date" bind:value={filter.startDate} onclick={toggleDatePicker} readonly />
     </DatePicker>
-
-    <input
-      type="date"
-      bind:value={filter.startDate}
-      onblur={filterTransactions_}
-    />
     <input
       type="date"
       bind:value={filter.endDate}
