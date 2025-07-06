@@ -170,7 +170,15 @@ function toggleSort(by: SortBy) {
       bind:isOpen={datePickerIsOpen}
       onDateChange={filterTransactions_}
     >
-      <input type="text" placeholder="Select date range" value={filter.startDate + ' - ' + filter.endDate} onclick={toggleDatePicker} readonly />
+      <button type="button" onclick={toggleDatePicker}>
+        {#if filter.startDate && filter.endDate}
+          {filter.startDate.toISOString().split('T')[0]} - {filter.endDate.toISOString().split('T')[0]}
+        {:else if filter.startDate}
+          {filter.startDate.toISOString().split('T')[0]} - ?
+        {:else}
+          Date Range
+        {/if}
+      </button>
     </DatePicker>
 
     <button type="button" onclick={() => { filter = { filename: undefined, startDate: null, endDate: null }; filterTransactions_(); }}>
