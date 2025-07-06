@@ -18,19 +18,17 @@
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
   let filter: Filter = { filename: undefined, startDate: null, endDate: null };
-  type DatePickerDates = {
-    startDate: string | null;
-    endDate: string | null;
-  };
-  let datePickerDates: DatePickerDates = { startDate: null, endDate: null };
   // Initialize file input element
   let fileInput: HTMLInputElement;
   let sort: Sort = { by: 'date', order: 'asc' };
   let showAbout = false;
 
+  // Computed values for DatePicker (needs strings)
+  $: datePickerStartDate = filter.startDate ? filter.startDate.toISOString().split('T')[0] : null;
+  $: datePickerEndDate = filter.endDate ? filter.endDate.toISOString().split('T')[0] : null;
+
   function clearFilter_() {
     filter = { filename: undefined, startDate: null, endDate: null };
-    datePickerDates = { startDate: null, endDate: null };
     datePickerIsOpen = false;
   }
 
@@ -61,8 +59,6 @@
     const endDateStr = url.searchParams.get('endDate');
     filter.startDate = startDateStr ? new Date(startDateStr) : null;
     filter.endDate = endDateStr ? new Date(endDateStr) : null;
-    datePickerDates.startDate = startDateStr ? startDateStr : null;
-    datePickerDates.endDate = endDateStr ? endDateStr : null;
     getTransactions_();
     loadFilenames_();
     filterTransactions_();
@@ -112,8 +108,6 @@ async function handleCSVUpload(event: Event) {
 async function filterTransactions_() {
   try {
     let result = await getTransactions();
-    filter.startDate = datePickerDates.startDate ? new Date(datePickerDates.startDate) : null;
-    filter.endDate = datePickerDates.endDate ? new Date(datePickerDates.endDate) : null;
     if (filter.filename !== "All") {
       result = result.filter(tx => tx.filename === filter.filename);
     }
@@ -147,6 +141,13 @@ async function filterTransactions_() {
   }
 }
 
+function handleDatePickerChange() {
+  // Sync DatePicker string values back to filter Date objects
+  filter.startDate = datePickerStartDate ? new Date(datePickerStartDate) : null;
+  filter.endDate = datePickerEndDate ? new Date(datePickerEndDate) : null;
+  filterTransactions_();
+}
+
 function toggleSort(by: SortBy) {
   if (sort.by === by) {
     sort.order = sort.order === 'asc' ? 'desc' : 'asc';
@@ -171,10 +172,10 @@ function toggleSort(by: SortBy) {
 
     <DatePicker
       isRange={true}
-      bind:startDate={datePickerDates.startDate}
-      bind:endDate={datePickerDates.endDate}
+      bind:startDate={datePickerStartDate}
+      bind:endDate={datePickerEndDate}
       bind:isOpen={datePickerIsOpen}
-      onDateChange={filterTransactions_}
+      onDateChange={handleDatePickerChange}
     />
     <button type="button" onclick={toggleDatePicker}>
       {#if filter.startDate && filter.endDate}
