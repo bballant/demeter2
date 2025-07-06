@@ -3,6 +3,16 @@
   import type { Transaction, Filter, Sort, SortBy } from '../lib/types';
   import { onMount } from 'svelte';
   import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
+  import { DatePicker } from '@svelte-plugins/datepicker';
+
+  let datePickerIsOpen = false;
+
+  const toggleDatePicker = () => {
+    console.log("Toggling date picker");
+    console.log("DatePicker isOpen WAS:", datePickerIsOpen);
+    console.log("DatePicker isOpen IS:", !datePickerIsOpen);
+    return datePickerIsOpen = !datePickerIsOpen;
+  };
 
   function formatAmount(cents: number): string {
     const sign = cents < 0 ? '-' : '';
@@ -145,6 +155,11 @@ function toggleSort(by: SortBy) {
         <option value={fname}>{fname}</option>
       {/each}
     </select>
+
+    <DatePicker bind:datePickerIsOpen onblur={filterTransactions_}>
+      <input type="text" placeholder="Select date" bind:value={filter.startDate} onclick={toggleDatePicker} />
+    </DatePicker>
+
     <input
       type="date"
       bind:value={filter.startDate}
