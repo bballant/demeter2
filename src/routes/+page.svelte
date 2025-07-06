@@ -5,7 +5,7 @@
   import { getTransactions, addTransaction, deleteAllTransactions, getFilenames, deleteTransactionsByFilename, deleteByIds } from '../lib/db';
   import { DatePicker } from '@svelte-plugins/datepicker';
 
-  let datePickerIsOpen = false;
+  let datePickerIsOpen = $state(false);
   const toggleDatePicker = () => (datePickerIsOpen = !datePickerIsOpen);
 
   function formatAmount(cents: number): string {
@@ -15,17 +15,17 @@
     return `${sign}$${dollars}`;
   }
 
-  let transactions: Transaction[] = [];
-  let filenames: string[] = [];
-  let filter: Filter = { filename: undefined, startDate: null, endDate: null };
+  let transactions = $state<Transaction[]>([]);
+  let filenames = $state<string[]>([]);
+  let filter = $state<Filter>({ filename: undefined, startDate: null, endDate: null });
   // Initialize file input element
   let fileInput: HTMLInputElement;
-  let sort: Sort = { by: 'date', order: 'asc' };
-  let showAbout = false;
+  let sort = $state<Sort>({ by: 'date', order: 'asc' });
+  let showAbout = $state(false);
 
   // Computed values for DatePicker (needs strings)
-  $: datePickerStartDate = filter.startDate ? filter.startDate.toISOString().split('T')[0] : null;
-  $: datePickerEndDate = filter.endDate ? filter.endDate.toISOString().split('T')[0] : null;
+  let datePickerStartDate = $derived(filter.startDate ? filter.startDate.toISOString().split('T')[0] : null);
+  let datePickerEndDate = $derived(filter.endDate ? filter.endDate.toISOString().split('T')[0] : null);
 
   function clearFilter_() {
     filter = { filename: undefined, startDate: null, endDate: null };
@@ -162,8 +162,8 @@ function toggleSort(by: SortBy) {
 <main class="container">
   <div class="button-row">
     <button onclick={() => fileInput.click()}>Upload CSV</button>
-    <input type="file" accept=".csv" bind:this={fileInput} onchange={handleCSVUpload} style="display:none" />
-    <select bind:value={filter.filename} onchange={filterTransactions_}>
+    <input type="file" accept=".csv" bind:this={fileInput} onchange={(e) => handleCSVUpload(e)} style="display:none" />
+    <select bind:value={filter.filename} onchange={() => filterTransactions_()}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
         <option value={fname}>{fname}</option>
@@ -201,7 +201,7 @@ function toggleSort(by: SortBy) {
     >
       Analysis
     </button>
-    <button onclick={deleteByFilter_}>Delete Shown</button>
+    <button onclick={() => deleteByFilter_()}>Delete Shown</button>
     <button type="button" onclick={() => (showAbout = true)} style="margin-left: auto;">?</button>
   </div>
   <table>

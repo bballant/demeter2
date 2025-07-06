@@ -4,10 +4,10 @@
   import { analyzeTransactions } from '../../lib/analysis';
   import type { TransactionAnalysis } from '../../lib/types';
 
-  let filename: string | undefined;
-  let startDate: Date | null;
-  let endDate: Date | null;
-  let analysis: TransactionAnalysis = {
+  let filename = $state<string | undefined>(undefined);
+  let startDate = $state<Date | null>(null);
+  let endDate = $state<Date | null>(null);
+  let analysis = $state<TransactionAnalysis>({
     totalCount: 0,
     mostExpensive: null,
     topDescription: "",
@@ -17,7 +17,7 @@
     medianSpending: 0,
     weeklyAvgSpending: 0,
     topPayees: []
-  };
+  });
 
   onMount(async () => {
     const url = new URL(window.location.href);
