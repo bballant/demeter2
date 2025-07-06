@@ -18,6 +18,12 @@
   let transactions: Transaction[] = [];
   let filenames: string[] = [];
   let filter: Filter = { filename: undefined, startDate: null, endDate: null };
+  type DatePickerDates = {
+    startDate: string | null;
+    endDate: string | null;
+  };
+  let datePickerDates: DatePickerDates = { startDate: null, endDate: null };
+  // Initialize file input element
   let fileInput: HTMLInputElement;
   let sort: Sort = { by: 'date', order: 'asc' };
   let showAbout = false;
@@ -49,6 +55,8 @@
     const endDateStr = url.searchParams.get('endDate');
     filter.startDate = startDateStr ? new Date(startDateStr) : null;
     filter.endDate = endDateStr ? new Date(endDateStr) : null;
+    datePickerDates.startDate = startDateStr ? startDateStr : null;
+    datePickerDates.endDate = endDateStr ? endDateStr : null;
     getTransactions_();
     loadFilenames_();
     filterTransactions_();
@@ -98,6 +106,8 @@ async function handleCSVUpload(event: Event) {
 async function filterTransactions_() {
   try {
     let result = await getTransactions();
+    filter.startDate = datePickerDates.startDate ? new Date(datePickerDates.startDate) : null;
+    filter.endDate = datePickerDates.endDate ? new Date(datePickerDates.endDate) : null;
     if (filter.filename !== "All") {
       result = result.filter(tx => tx.filename === filter.filename);
     }
@@ -155,12 +165,12 @@ function toggleSort(by: SortBy) {
 
     <DatePicker
       isRange={true}
-      bind:startDate={filter.startDate}
-      bind:endDate={filter.endDate}
+      bind:startDate={datePickerDates.startDate}
+      bind:endDate={datePickerDates.endDate}
       bind:isOpen={datePickerIsOpen}
-      on:dateSelected={filterTransactions_}
+      onDateChange={filterTransactions_}
     >
-      <input type="text" placeholder="Select date range" value={filter.startDate ? filter.startDate.toISOString().split('T')[0] : ''} onclick={toggleDatePicker} readonly />
+      <input type="text" placeholder="Select date range" value={filter.startDate + ' - ' + filter.endDate} onclick={toggleDatePicker} readonly />
     </DatePicker>
 
     <button type="button" onclick={() => { filter = { filename: undefined, startDate: null, endDate: null }; filterTransactions_(); }}>
