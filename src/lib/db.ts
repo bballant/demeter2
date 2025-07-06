@@ -13,10 +13,17 @@ const getDb = async (): Promise<Database> => {
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   const db = await getDb();
-  const rows = await db.select("SELECT * FROM txn");
+  const rows = await db.select("SELECT * FROM txn") as Array<{
+    id: number;
+    date: string;
+    description: string;
+    amount: number;
+    filename: string | null;
+  }>;
   return rows.map(row => ({
     ...row,
-    date: new Date(row.date)
+    date: new Date(row.date),
+    filename: row.filename || undefined
   }));
 };
 
