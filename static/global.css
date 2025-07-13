@@ -48,8 +48,16 @@ button {
   color: #FFFFFF;
   background-color: #74C7B8;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Visual treatment for the active/disabled tab */
+button.active,
+button:disabled {
+  background-color: #4fa897;
+  cursor: default;
+  box-shadow: none;
 }
 
 button:hover {
