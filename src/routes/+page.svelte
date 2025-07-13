@@ -160,8 +160,6 @@
 </script>
 <main class="container">
   <div class="button-row">
-    <button onclick={() => fileInput.click()}>Upload CSV</button>
-    <input type="file" accept=".csv" bind:this={fileInput} onchange={(e) => handleCSVUpload(e)} style="display:none" />
     <select bind:value={filter.filename} onchange={() => filterTransactions()}>
       <option value="All">Show All</option>
       {#each filenames.slice(1) as fname}
@@ -188,19 +186,9 @@
     <button type="button" onclick={() => { clearFilter(); filterTransactions(); }}>
       Clear
     </button>
-    <button
-      onclick={() => {
-        const params = new URLSearchParams({
-          filename: filter.filename ?? "",
-          startDate: filter.startDate ? filter.startDate.toISOString().split('T')[0] : "",
-          endDate: filter.endDate ? filter.endDate.toISOString().split('T')[0] : "",
-        });
-        window.location.href = `/analysis?${params.toString()}`;
-      }}
-    >
-      Analysis
-    </button>
     <button onclick={() => deleteByFilter()}>Delete Shown</button>
+    <button onclick={() => fileInput.click()}>Import CSV</button>
+    <input type="file" accept=".csv" bind:this={fileInput} onchange={(e) => handleCSVUpload(e)} style="display:none" />
     
   </div>
   <table>
