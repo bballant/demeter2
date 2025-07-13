@@ -32,10 +32,13 @@ src/lib/db.ts
 src/lib/types.ts
 src/lib/csv.ts
 src/lib/analysis.ts
+scripts/generate-sample.ts
 src/lib/default-header-mappings.json
 src/routes/+page.svelte
 src/routes/+layout.ts
+src/routes/+layout.svelte
 src/routes/analysis/+page.svelte
+src/routes/tagging/+page.svelte
 package.json
 src/app.html
 static/global.css
