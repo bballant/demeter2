@@ -12,6 +12,9 @@ When starting a new LLM session for this Tauri + SvelteKit project, load these f
 - `src/routes/+page.svelte` - Main transactions page UI
 - `src/routes/+layout.ts` - SvelteKit layout configuration (SSR disabled for Tauri)
 - `src/routes/analysis/+page.svelte` - Transaction analysis page UI
+- `scripts/generate-sample.ts` - Node script to generate fake CSVs
+- `src/routes/+layout.svelte` - Global layout with tabs
+- `src/routes/tagging/+page.svelte` - Tagging page UI
 
 ### Configuration Files
 - `package.json` - Dependencies and npm scripts
