@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS config (
+    key VARCHAR PRIMARY KEY,
+    value VARCHAR
+);

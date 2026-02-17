@@ -1,0 +1,55 @@
+{
+    "name": "demeter2",
+    "description": "A CLI with embedded DuckDB database",
+    "version": "0.0.0",
+    "author": "The Ghost of Lab Nine",
+    "bin": {
+        "demeter2": "./bin/run.js"
+    },
+    "bugs": "https://github.com/bballant/demeter2/issues",
+    "dependencies": {
+        "@duckdb/node-api": "^1.4.3-r.3",
+        "@effect/cli": "^0.x",
+        "@effect/platform": "^0.x",
+        "@effect/platform-node": "^0.x",
+        "effect": "^3.x"
+    },
+    "devDependencies": {
+        "@eslint/compat": "^1",
+        "@types/chai": "^4",
+        "@types/mocha": "^10",
+        "@types/node": "^25",
+        "@types/ws": "^8.18.1",
+        "chai": "^4",
+        "eslint": "^9",
+        "eslint-config-prettier": "^10",
+        "mocha": "^10",
+        "shx": "^0.3.3",
+        "ts-node": "^10",
+        "typescript": "^5"
+    },
+    "engines": {
+        "node": ">=25.0.0"
+    },
+    "files": [
+        "./bin",
+        "./dist"
+    ],
+    "homepage": "https://github.com/bballant/demeter2",
+    "keywords": [
+        "effect",
+        "duckdb",
+        "cli"
+    ],
+    "license": "MIT",
+    "main": "dist/main.js",
+    "type": "module",
+    "repository": "bballant/demeter2",
+    "scripts": {
+        "build": "shx rm -rf dist && tsc && shx cp -r src/sql dist/",
+        "lint": "eslint",
+        "posttest": "npm run lint",
+        "test": "mocha --forbid-only \"test/**/*.test.ts\""
+    },
+    "types": "dist/main.d.ts"
+}
