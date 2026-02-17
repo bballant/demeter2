@@ -12,6 +12,7 @@
         "@effect/cli": "^0.x",
         "@effect/platform": "^0.x",
         "@effect/platform-node": "^0.x",
+        "csv-parse": "^6.1.0",
         "effect": "^3.x"
     },
     "devDependencies": {

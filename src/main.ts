@@ -4,9 +4,10 @@ import { Console, Effect } from "effect"
 
 import { configCmd } from "./commands/config.js"
 import { dbCmd } from "./commands/db.js"
+import { recordCmd } from "./commands/record.js"
 
 const root = Command.make("demeter2").pipe(
-    Command.withSubcommands([configCmd, dbCmd]),
+    Command.withSubcommands([configCmd, dbCmd, recordCmd]),
 )
 
 const cli = Command.run(root, {

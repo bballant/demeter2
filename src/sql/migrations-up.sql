@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS tag (
 );
 
 CREATE TABLE IF NOT EXISTS record_tag (
-    record_id VARCHAR NOT NULL REFERENCES record (id) ON DELETE CASCADE,
-    tag_id INTEGER NOT NULL REFERENCES tag (id) ON DELETE CASCADE,
+    record_id VARCHAR NOT NULL REFERENCES record (id),
+    tag_id INTEGER NOT NULL REFERENCES tag (id),
     PRIMARY KEY (record_id, tag_id)
 );
