@@ -18,7 +18,7 @@ const value = Args.text({ name: "value" })
 
 const runMigrations = Effect.gen(function* () {
     const db = yield* DuckDb
-    const migrationsPath = new URL("../sql/migrations.sql", import.meta.url).pathname
+    const migrationsPath = new URL("../sql/migrations-up.sql", import.meta.url).pathname
     yield* db.executeSQLFile(migrationsPath)
 })
 
