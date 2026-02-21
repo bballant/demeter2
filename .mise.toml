@@ -1,7 +1,6 @@
 [tools]
-node = "22"
-rust = "latest"
-
+node = "25"
+just = "latest"
 
 [env]
 # https://mise.jdx.dev/environments/#env-path
