@@ -10,7 +10,7 @@ import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import type { ReportPeriod, SpendingReport } from "../db/model.js"
-import { formatReport } from "./buildReport.js"
+import { formatMerchantDisplay, formatReport } from "./buildReport.js"
 import { Console } from "effect"
 
 /** Error from report output (e.g. PDF write failure). */
@@ -194,12 +194,15 @@ async function renderReportPdf(report: SpendingReport): Promise<Uint8Array> {
         y = tableStartY
         x += tableWidth + TABLE_GAP
 
-        // Table 2: Top 10 Merchants (amount left, right-justified; description right; 12-char display)
+        // Table 2: Top 12 Merchants — truncate merchant only, then add " (Category)" so category isn't cut off
         const merchAmountColWidth = maxAmountWidth(p.top_merchants.slice(0, maxRows).map((m) => m.spend))
         drawTableHeadingCentered("Top 12 Merchants", x, tableWidth, y)
         y -= LINE_HEIGHT + TABLE_HEADER_GAP
+        const merchantMaxLen = 12
+        const maxMerchantColChars = merchantMaxLen + 2 + 15 // " (Category)" up to 15-char category
         p.top_merchants.slice(0, maxRows).forEach((m) => {
-            drawRowAmountLeft(fmtMoney(m.spend), m.merchant, x + TABLE_LEFT_PADDING, y, merchAmountColWidth, MERCHANT_DISPLAY_MAX)
+            const label = formatMerchantDisplay(m.merchant, m.category, merchantMaxLen)
+            drawRowAmountLeft(fmtMoney(m.spend), label, x + TABLE_LEFT_PADDING, y, merchAmountColWidth, maxMerchantColChars)
             y -= rowHeight
         })
         drawTableBorder(x, tableStartY - tableHeight, tableWidth, tableHeightWithTitlePadding)

@@ -92,23 +92,25 @@ WITH
   ),
   top_categories_avg AS (SELECT * FROM cat_avg WHERE rank <= 12),
 
-  -- Top merchants: recent month (by merchant_key)
+  -- Top merchants: recent month (by merchant_key); tag_name = category for this merchant
   merch_month AS (
     SELECT
       'recent_month' AS period,
       'top_merchants' AS section,
-      ROW_NUMBER() OVER (ORDER BY SUM(-amount) DESC) AS rank,
-      NULL::VARCHAR AS tag_name,
+      ROW_NUMBER() OVER (ORDER BY SUM(-m.amount) DESC) AS rank,
+      arg_max(t.name, -m.amount) AS tag_name,
       NULL::DOUBLE AS category_spend,
-      merchant_key AS merchant,
-      SUM(-amount) AS merchant_spend,
+      m.merchant_key AS merchant,
+      SUM(-m.amount) AS merchant_spend,
       NULL::VARCHAR AS record_id,
       NULL::DATE AS record_date,
       NULL::VARCHAR AS record_description,
       NULL::DOUBLE AS record_amount
-    FROM month_records
-    WHERE merchant_key != ''
-    GROUP BY merchant_key
+    FROM month_records m
+    JOIN record_tag rt ON m.id = rt.record_id
+    JOIN tag t ON rt.tag_id = t.id
+    WHERE m.merchant_key != ''
+    GROUP BY m.merchant_key
   ),
   top_merchants_month AS (SELECT * FROM merch_month WHERE rank <= 12),
 
@@ -117,18 +119,20 @@ WITH
     SELECT
       'recent_year' AS period,
       'top_merchants' AS section,
-      ROW_NUMBER() OVER (ORDER BY SUM(-amount) DESC) AS rank,
-      NULL::VARCHAR AS tag_name,
+      ROW_NUMBER() OVER (ORDER BY SUM(-m.amount) DESC) AS rank,
+      arg_max(t.name, -m.amount) AS tag_name,
       NULL::DOUBLE AS category_spend,
-      merchant_key AS merchant,
-      SUM(-amount) AS merchant_spend,
+      m.merchant_key AS merchant,
+      SUM(-m.amount) AS merchant_spend,
       NULL::VARCHAR AS record_id,
       NULL::DATE AS record_date,
       NULL::VARCHAR AS record_description,
       NULL::DOUBLE AS record_amount
-    FROM year_records
-    WHERE merchant_key != ''
-    GROUP BY merchant_key
+    FROM year_records m
+    JOIN record_tag rt ON m.id = rt.record_id
+    JOIN tag t ON rt.tag_id = t.id
+    WHERE m.merchant_key != ''
+    GROUP BY m.merchant_key
   ),
   top_merchants_year AS (SELECT * FROM merch_year WHERE rank <= 12),
 
@@ -137,18 +141,20 @@ WITH
     SELECT
       'avg_monthly' AS period,
       'top_merchants' AS section,
-      ROW_NUMBER() OVER (ORDER BY SUM(-amount) DESC) AS rank,
-      NULL::VARCHAR AS tag_name,
+      ROW_NUMBER() OVER (ORDER BY SUM(-m.amount) DESC) AS rank,
+      arg_max(t.name, -m.amount) AS tag_name,
       NULL::DOUBLE AS category_spend,
-      merchant_key AS merchant,
-      SUM(-amount) / 12.0 AS merchant_spend,
+      m.merchant_key AS merchant,
+      SUM(-m.amount) / 12.0 AS merchant_spend,
       NULL::VARCHAR AS record_id,
       NULL::DATE AS record_date,
       NULL::VARCHAR AS record_description,
       NULL::DOUBLE AS record_amount
-    FROM year_records
-    WHERE merchant_key != ''
-    GROUP BY merchant_key
+    FROM year_records m
+    JOIN record_tag rt ON m.id = rt.record_id
+    JOIN tag t ON rt.tag_id = t.id
+    WHERE m.merchant_key != ''
+    GROUP BY m.merchant_key
   ),
   top_merchants_avg AS (SELECT * FROM merch_avg WHERE rank <= 12),
 

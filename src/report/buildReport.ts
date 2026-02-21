@@ -69,7 +69,7 @@ export function buildReportFromRows(
             description: string
             amount: number
         }>,
-        top_merchants: [] as Array<{ merchant: string; spend: number }>,
+        top_merchants: [] as Array<{ merchant: string; spend: number; category?: string }>,
     })
 
     const report: SpendingReport = {
@@ -95,7 +95,11 @@ export function buildReportFromRows(
         const merchRows = periodRows.filter(bySection("top_merchants"))
         for (const r of merchRows) {
             if (r.merchant != null && r.merchant_spend != null)
-                p.top_merchants.push({ merchant: r.merchant, spend: r.merchant_spend })
+                p.top_merchants.push({
+                    merchant: r.merchant,
+                    spend: r.merchant_spend,
+                    ...(r.tag_name != null && r.tag_name !== "" ? { category: r.tag_name } : {}),
+                })
         }
 
         const txRows = periodRows.filter(bySection("top_transactions"))
@@ -129,6 +133,16 @@ function fmtMoney(n: number): string {
 
 function fmtDate(s: string): string {
     return s.slice(0, 10)
+}
+
+/** Truncate merchant only, then append " (Category)" so category is never cut off. */
+export function formatMerchantDisplay(
+    merchant: string,
+    category?: string | null,
+    maxMerchantLen: number = 40,
+): string {
+    const m = merchant.slice(0, maxMerchantLen).trimEnd()
+    return category ? `${m} (${category})` : m
 }
 
 /** Format SpendingReport as plain text for stdout. */
@@ -175,9 +189,10 @@ export function formatReport(report: SpendingReport): string {
         section("Top 12 merchants by spend", () => {
             if (p.top_merchants.length === 0) lines.push("(none)")
             else
-                p.top_merchants.forEach((m, i) =>
-                    lines.push(`  ${i + 1}. ${m.merchant}: ${fmtMoney(m.spend)}`),
-                )
+                p.top_merchants.forEach((m, i) => {
+                    const label = formatMerchantDisplay(m.merchant, m.category, 40)
+                    lines.push(`  ${i + 1}. ${label}: ${fmtMoney(m.spend)}`)
+                })
         })
     }
 

@@ -72,7 +72,7 @@ export type SpendingReport = {
                 description: string
                 amount: number
             }>
-            top_merchants: Array<{ merchant: string; spend: number }>
+            top_merchants: Array<{ merchant: string; spend: number; category?: string }>
         }
     }
 }
