@@ -152,7 +152,7 @@ export function formatReport(report: SpendingReport): string {
         lines.push("")
         lines.push(`========== ${periodTitles[period]} ==========`)
 
-        section("Top 10 categories by spend", () => {
+        section("Top 12 categories by spend", () => {
             if (p.top_categories.length === 0) lines.push("(none)")
             else
                 p.top_categories.forEach((c, i) =>
@@ -161,7 +161,7 @@ export function formatReport(report: SpendingReport): string {
         })
 
         if (period !== "avg_monthly") {
-            section("Top 10 transactions by spend", () => {
+            section("Top 12 transactions by spend", () => {
                 if (p.top_transactions.length === 0) lines.push("(none)")
                 else
                     p.top_transactions.forEach((t, i) =>
@@ -172,7 +172,7 @@ export function formatReport(report: SpendingReport): string {
             })
         }
 
-        section("Top 10 merchants by spend", () => {
+        section("Top 12 merchants by spend", () => {
             if (p.top_merchants.length === 0) lines.push("(none)")
             else
                 p.top_merchants.forEach((m, i) =>

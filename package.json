@@ -51,7 +51,7 @@
     "type": "module",
     "repository": "bballant/demeter2",
     "scripts": {
-        "build": "shx rm -rf dist && tsc && shx cp -r src/sql dist/",
+        "build": "shx rm -rf dist && tsc && shx cp -r src/sql dist/ && (cp demeter2.png dist/ 2>/dev/null || true)",
         "lint": "eslint",
         "posttest": "npm run lint",
         "test": "mocha --forbid-only \"test/**/*.test.ts\""

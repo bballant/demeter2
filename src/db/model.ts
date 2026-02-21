@@ -29,7 +29,7 @@ export type TaggedRecord = StatementRecord & { tags: string[] }
 /** Time period for report sections. All are relative to last date in record. */
 export type ReportPeriod = "recent_month" | "avg_monthly" | "recent_year"
 
-/** Section of the report; each has a fixed rank size of 10. */
+/** Section of the report; each has a fixed rank size of 12. */
 export type ReportSection =
     | "top_categories"
     | "top_transactions"
@@ -44,7 +44,7 @@ export type ReportRow = {
     tag_name: string | null
     /** Set when section is top_categories. Spend is non-negative. */
     category_spend: number | null
-    /** Set when section is top_merchants (normalized merchant, e.g. first 10 chars, numbers stripped). */
+    /** Set when section is top_merchants (normalized merchant, e.g. first 24 chars, numbers stripped). */
     merchant: string | null
     /** Set when section is top_merchants. Spend is non-negative. */
     merchant_spend: number | null
@@ -65,7 +65,7 @@ export type SpendingReport = {
     periods: {
         [K in ReportPeriod]: {
             top_categories: Array<{ tag_name: string; spend: number }>
-            /** Top 10 transactions; empty for avg_monthly. */
+            /** Top 12 transactions; empty for avg_monthly. */
             top_transactions: Array<{
                 id: string
                 date: string

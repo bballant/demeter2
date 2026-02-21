@@ -13,3 +13,4 @@ vite.config.ts.timestamp-*
 samples/
 dist/
 local/
+report.pdf

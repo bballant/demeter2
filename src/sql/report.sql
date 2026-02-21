@@ -1,7 +1,7 @@
 -- Single-query spending report. Returns unified rows: one per (period, section, rank).
 -- Columns: period, section, rank, tag_name, category_spend, merchant, merchant_spend,
 --          record_id, record_date, record_description, record_amount.
--- Only DEBITs count as spend; spend amounts are positive. Merchant = first 10 chars of description, digits stripped.
+-- Only DEBITs count as spend; spend amounts are positive. Merchant = first 24 chars of description, digits stripped.
 -- Run with: demeter2 db query path/to/report.sql
 
 WITH
@@ -10,11 +10,11 @@ WITH
       (SELECT MAX(date) FROM record) AS last_d,
       CAST(DATE_TRUNC('month', (SELECT MAX(date) FROM record)) AS DATE) AS month_start
   ),
-  -- Normalized merchant: first 10 chars of description, numbers removed, trimmed
+  -- Normalized merchant: first 24 chars of description, numbers removed, trimmed
   with_merchant AS (
     SELECT
       r.*,
-      TRIM(REGEXP_REPLACE(SUBSTRING(r.description, 1, 10), '[0-9]', '')) AS merchant_key
+      TRIM(REGEXP_REPLACE(SUBSTRING(r.description, 1, 24), '[0-9]', '')) AS merchant_key
     FROM record r
     WHERE r.record_type = 'DEBIT' AND r.amount < 0
   ),
@@ -48,7 +48,7 @@ WITH
     JOIN tag t ON rt.tag_id = t.id
     GROUP BY t.name
   ),
-  top_categories_month AS (SELECT * FROM cat_month WHERE rank <= 10),
+  top_categories_month AS (SELECT * FROM cat_month WHERE rank <= 12),
 
   -- Top categories: recent year
   cat_year AS (
@@ -69,9 +69,9 @@ WITH
     JOIN tag t ON rt.tag_id = t.id
     GROUP BY t.name
   ),
-  top_categories_year AS (SELECT * FROM cat_year WHERE rank <= 10),
+  top_categories_year AS (SELECT * FROM cat_year WHERE rank <= 12),
 
-  -- Top categories: avg monthly (year total / 12, same top 10 as year)
+  -- Top categories: avg monthly (year total / 12, same top 12 as year)
   cat_avg AS (
     SELECT
       'avg_monthly' AS period,
@@ -90,7 +90,7 @@ WITH
     JOIN tag t ON rt.tag_id = t.id
     GROUP BY t.name
   ),
-  top_categories_avg AS (SELECT * FROM cat_avg WHERE rank <= 10),
+  top_categories_avg AS (SELECT * FROM cat_avg WHERE rank <= 12),
 
   -- Top merchants: recent month (by merchant_key)
   merch_month AS (
@@ -110,7 +110,7 @@ WITH
     WHERE merchant_key != ''
     GROUP BY merchant_key
   ),
-  top_merchants_month AS (SELECT * FROM merch_month WHERE rank <= 10),
+  top_merchants_month AS (SELECT * FROM merch_month WHERE rank <= 12),
 
   -- Top merchants: recent year
   merch_year AS (
@@ -130,7 +130,7 @@ WITH
     WHERE merchant_key != ''
     GROUP BY merchant_key
   ),
-  top_merchants_year AS (SELECT * FROM merch_year WHERE rank <= 10),
+  top_merchants_year AS (SELECT * FROM merch_year WHERE rank <= 12),
 
   -- Top merchants: avg monthly
   merch_avg AS (
@@ -150,7 +150,7 @@ WITH
     WHERE merchant_key != ''
     GROUP BY merchant_key
   ),
-  top_merchants_avg AS (SELECT * FROM merch_avg WHERE rank <= 10),
+  top_merchants_avg AS (SELECT * FROM merch_avg WHERE rank <= 12),
 
   -- Top 10 transactions: recent month
   tx_month AS (
@@ -168,7 +168,7 @@ WITH
       amount AS record_amount
     FROM month_records
   ),
-  top_transactions_month AS (SELECT * FROM tx_month WHERE rank <= 10),
+  top_transactions_month AS (SELECT * FROM tx_month WHERE rank <= 12),
 
   -- Top 10 transactions: recent year
   tx_year AS (
@@ -186,7 +186,7 @@ WITH
       amount AS record_amount
     FROM year_records
   ),
-  top_transactions_year AS (SELECT * FROM tx_year WHERE rank <= 10)
+  top_transactions_year AS (SELECT * FROM tx_year WHERE rank <= 12)
 
 SELECT * FROM top_categories_month
 UNION ALL SELECT * FROM top_categories_year
