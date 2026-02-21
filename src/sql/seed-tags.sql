@@ -26,8 +26,10 @@ INSERT INTO record_tag (record_id, tag_id)
 SELECT
   r.id,
   CASE
-    -- Ordering In (delivery)
-    WHEN UPPER(r.description) LIKE '%DOORDASH%' OR UPPER(r.description) LIKE '%UBER EATS%' THEN 5
+    -- Ordering In (delivery, takeout)
+    WHEN UPPER(r.description) LIKE '%DOORDASH%' OR UPPER(r.description) LIKE '%UBER EATS%'
+      OR UPPER(r.description) LIKE '%CHIPOTLE%' OR UPPER(r.description) LIKE '%SHAKE SHACK%'
+      OR UPPER(r.description) LIKE '%ROMAN GOURMET%' THEN 5
     -- Wine & Beer
     WHEN UPPER(r.description) LIKE '%LUMS CELLAR%' OR UPPER(r.description) LIKE '%VILLAGE WINE SHOP%'
       OR UPPER(r.description) LIKE '%BUY-RITE%' OR UPPER(r.description) LIKE '%BOLERO SNORT%'
@@ -76,8 +78,7 @@ SELECT
       OR UPPER(r.description) LIKE '%NJ DEPARTMENT OF HEALT%' OR UPPER(r.description) LIKE '%ELEVATION HOLISTICS%' THEN 9
     -- Going Out (dining, coffee, entertainment venues)
     WHEN UPPER(r.description) LIKE '%TST*%' OR UPPER(r.description) LIKE '%TST *%'
-      OR UPPER(r.description) LIKE '%CHIPOTLE%' OR UPPER(r.description) LIKE '%ROMAN GOURMET%'
-      OR UPPER(r.description) LIKE '%SHAKE SHACK%' OR UPPER(r.description) LIKE '%SQ *BAGEL%'
+      OR UPPER(r.description) LIKE '%SQ *BAGEL%'
       OR UPPER(r.description) LIKE '%SQ *THE ABLE BAKER%' OR UPPER(r.description) LIKE '%SQ *PORTA ROSSA%'
       OR UPPER(r.description) LIKE '%SQ *ARTIE%' OR UPPER(r.description) LIKE '%SQ *PALMER%'
       OR UPPER(r.description) LIKE '%HALCYON%' OR UPPER(r.description) LIKE '%CORNER SLICE%'
@@ -104,7 +105,8 @@ SELECT
       OR UPPER(r.description) LIKE '%STAPLES%' OR UPPER(r.description) LIKE '%VIVINT%'
       OR UPPER(r.description) LIKE '%USPS %' OR UPPER(r.description) LIKE '%TOWNSHIP OF SOUTH ORAN%'
       OR UPPER(r.description) LIKE '%SAVATREE%' OR UPPER(r.description) LIKE '%TOWNSHIP OF MAPLEWOOD%'
-      OR UPPER(r.description) LIKE '%SAMS AIR CONTROL%' OR UPPER(r.description) LIKE '%VILLAGE GREEN NJ%' THEN 11
+      OR UPPER(r.description) LIKE '%SAMS AIR CONTROL%' OR UPPER(r.description) LIKE '%VILLAGE GREEN NJ%'
+      OR UPPER(r.description) LIKE '%RUSSO BROS%' THEN 11
     -- Shopping (retail, pharmacy, Amazon non-subscription)
     WHEN UPPER(r.description) LIKE '%AMAZON%' OR UPPER(r.description) LIKE '%AMAZON MKTPL%'
       OR UPPER(r.description) LIKE '%AMAZON DIGI%' THEN 10
@@ -127,8 +129,7 @@ SELECT
       OR UPPER(r.description) LIKE '%BOSECORPORA%' OR UPPER(r.description) LIKE '%BRICK LLC%'
       OR UPPER(r.description) LIKE '%PAYPAL *PAPIER%' OR UPPER(r.description) LIKE '%MEUSSHOP%'
       OR UPPER(r.description) LIKE '%PRIMARY.COM%' OR UPPER(r.description) LIKE '%BRITTO WORLD%'
-      OR UPPER(r.description) LIKE '%GOOD MERCH ONLY%' OR UPPER(r.description) LIKE '%MIOKIISHOP%'
-      OR UPPER(r.description) LIKE '%RUSSO BROS%' THEN 10
+      OR UPPER(r.description) LIKE '%GOOD MERCH ONLY%' OR UPPER(r.description) LIKE '%MIOKIISHOP%' THEN 10
     -- Entertainment (games, music lessons, kids activities)
     WHEN UPPER(r.description) LIKE '%STEAM GAMES%' OR UPPER(r.description) LIKE '%NINTENDO%'
       OR UPPER(r.description) LIKE '%ELEFANTE MUSIC%' OR UPPER(r.description) LIKE '%BRITISH SWIM SCHOOL%'
