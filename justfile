@@ -2,10 +2,10 @@
 build:
     npm run build
 
-# Run the built version
+# Run the built version (from dist/)
 run *args:
-    ./bin/run.js {{ args }}
+    node dist/index.js {{ args }}
 
 # Run in development mode (no build required)
 dev *args:
-    ./bin/dev.js {{ args }}
+    node --loader ts-node/esm --no-warnings=ExperimentalWarning src/index.ts {{ args }}

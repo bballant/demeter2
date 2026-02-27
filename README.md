@@ -12,8 +12,10 @@ A **command-line budgeting app** that stores bank/statement data in an embedded 
 ```bash
 npm install
 npm run build
-./bin/run.js --help
+node dist/index.js --help
 ```
+
+Or after build: `npm start -- --help`
 
 Default database path: `~/.local/share/demeter2/demeter2.db`.
 
@@ -84,8 +86,8 @@ Schema is created by running the migration SQL (see `src/sql/migrations-up.sql`)
 
 | Path | Purpose |
 |------|--------|
-| `bin/run.js` | Entrypoint; loads `dist/main.js`. |
-| `src/main.ts` | CLI root: wires subcommands and Effect runtime. |
+| `dist/index.js` | Entrypoint after build; run with `node dist/index.js ...`. |
+| `src/index.ts` | CLI root: Effect CLI with subcommands config, db, record, report. |
 | `src/commands/` | Subcommands: `config`, `db`, `record`, `report`. |
 | `src/db/` | DuckDB layer, record insert, errors, **model types** (`model.ts`). |
 | `src/report/` | Report logic: build from rows (`buildReport.ts`), output service (**stdout vs PDF**) and one-page PDF layout (`ReportOutput.ts`). |

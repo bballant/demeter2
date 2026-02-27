@@ -3,12 +3,9 @@
     "description": "A CLI with embedded DuckDB database",
     "version": "0.0.0",
     "author": "The Ghost of Lab Nine",
-    "bin": {
-        "demeter2": "./bin/run.js"
-    },
     "bugs": "https://github.com/bballant/demeter2/issues",
     "dependencies": {
-        "@duckdb/node-api": "^1.4.3-r.3",
+        "@duckdb/node-api": "^1.4.4-r.1",
         "@effect/cli": "^0.x",
         "@effect/platform": "^0.x",
         "@effect/platform-node": "^0.x",
@@ -34,10 +31,9 @@
         "node": ">=25.0.0"
     },
     "overrides": {
-        "minimatch": "^10.2.1"
+        "minimatch": "^10.2.4"
     },
     "files": [
-        "./bin",
         "./dist"
     ],
     "homepage": "https://github.com/bballant/demeter2",
@@ -47,14 +43,15 @@
         "cli"
     ],
     "license": "MIT",
-    "main": "dist/main.js",
+    "main": "dist/index.js",
     "type": "module",
     "repository": "bballant/demeter2",
     "scripts": {
         "build": "shx rm -rf dist && tsc && shx cp -r src/sql dist/ && (cp demeter2.png dist/ 2>/dev/null || true)",
         "lint": "eslint",
         "posttest": "npm run lint",
+        "start": "node dist/index.js",
         "test": "mocha --forbid-only \"test/**/*.test.ts\""
     },
-    "types": "dist/main.d.ts"
+    "types": "dist/index.d.ts"
 }
