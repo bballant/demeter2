@@ -59,7 +59,7 @@ const TRANSACTION_DESC_MAX = 12
 const AMOUNT_DESC_GAP = 3
 const AMOUNT_COLUMN_PADDING = 4
 const MIN_AMOUNT_COLUMN_WIDTH = 28
-const PERIODS: ReportPeriod[] = ["recent_month", "avg_monthly", "recent_year"]
+const PERIODS: ReportPeriod[] = ["recent_week", "recent_month", "avg_monthly", "recent_year"]
 
 /** Title case: every word starts with a capital letter. */
 function titleCase(s: string): string {
@@ -67,9 +67,10 @@ function titleCase(s: string): string {
 }
 
 const PERIOD_TITLES: Record<ReportPeriod, (r: SpendingReport) => string> = {
-    recent_month: (r) => `Recent Month (${r.recent_month_label})`,
-    avg_monthly: () => "Avg Monthly",
-    recent_year: (r) => `Recent Year (${r.recent_year_label})`,
+    recent_week: (r) => `Recent Week (${r.recent_week_label}), Total Spend ${fmtMoney(r.periodTotals?.recent_week ?? 0)}`,
+    recent_month: (r) => `Recent Month (${r.recent_month_label}), Total Spend ${fmtMoney(r.periodTotals?.recent_month ?? 0)}`,
+    avg_monthly: (r) => `Avg Monthly, Total Spend ${fmtMoney(r.periodTotals?.avg_monthly ?? 0)}`,
+    recent_year: (r) => `Recent Year (${r.recent_year_label}), Total Spend ${fmtMoney(r.periodTotals?.recent_year ?? 0)}`,
 }
 
 function fmtMoney(n: number): string {
@@ -165,12 +166,15 @@ async function renderReportPdf(report: SpendingReport): Promise<Uint8Array> {
     const tableWidth2 = (usableWidth - TABLE_GAP) / 2
     const tableWidth3 = (usableWidth - 2 * TABLE_GAP) / 3
 
+    const maxRowsForPeriod = (period: ReportPeriod) => (period === "recent_week" ? 4 : 12)
+    const topNLabel = (period: ReportPeriod) => (period === "recent_week" ? "Top 4" : "Top 12")
+
     for (const period of PERIODS) {
         const p = report.periods[period]
         const hasTransactions = period !== "avg_monthly"
         const numTables = hasTransactions ? numTablesForOthers : numTablesForAvg
         const tableWidth = hasTransactions ? tableWidth3 : tableWidth2
-        const maxRows = 12
+        const maxRows = maxRowsForPeriod(period)
 
         // Section title (Title Case)
         draw(titleCase(PERIOD_TITLES[period](report)), MARGIN, y, SECTION_FONT_SIZE, { bold: true })
@@ -181,10 +185,10 @@ async function renderReportPdf(report: SpendingReport): Promise<Uint8Array> {
         const tableHeight = LINE_HEIGHT + TABLE_HEADER_GAP + maxRows * rowHeight
         const tableHeightWithTitlePadding = tableHeight + TABLE_TITLE_TOP_PADDING
 
-        // Table 1: Top 10 Categories (amount left, right-justified; description right)
+        // Table 1: Categories (amount left, right-justified; description right)
         let x = MARGIN
         const catAmountColWidth = maxAmountWidth(p.top_categories.slice(0, maxRows).map((c) => c.spend))
-        drawTableHeadingCentered("Top 12 Categories", x, tableWidth, y)
+        drawTableHeadingCentered(`${topNLabel(period)} Categories`, x, tableWidth, y)
         y -= LINE_HEIGHT + TABLE_HEADER_GAP
         p.top_categories.slice(0, maxRows).forEach((c) => {
             drawRowAmountLeft(fmtMoney(c.spend), c.tag_name, x + TABLE_LEFT_PADDING, y, catAmountColWidth, 28)
@@ -194,9 +198,9 @@ async function renderReportPdf(report: SpendingReport): Promise<Uint8Array> {
         y = tableStartY
         x += tableWidth + TABLE_GAP
 
-        // Table 2: Top 12 Merchants — truncate merchant only, then add " (Category)" so category isn't cut off
+        // Table 2: Merchants — truncate merchant only, then add " (Category)" so category isn't cut off
         const merchAmountColWidth = maxAmountWidth(p.top_merchants.slice(0, maxRows).map((m) => m.spend))
-        drawTableHeadingCentered("Top 12 Merchants", x, tableWidth, y)
+        drawTableHeadingCentered(`${topNLabel(period)} Merchants`, x, tableWidth, y)
         y -= LINE_HEIGHT + TABLE_HEADER_GAP
         const merchantMaxLen = 12
         const maxMerchantColChars = merchantMaxLen + 2 + 15 // " (Category)" up to 15-char category
@@ -209,9 +213,9 @@ async function renderReportPdf(report: SpendingReport): Promise<Uint8Array> {
         y = tableStartY
         x += tableWidth + TABLE_GAP
 
-        // Table 3: Top 10 Transactions (right column when 3 tables; skipped for avg_monthly)
+        // Table 3: Transactions (right column when 3 tables; skipped for avg_monthly)
         if (hasTransactions) {
-            drawTableHeadingCentered("Top 12 Transactions", x, tableWidth, y)
+            drawTableHeadingCentered(`${topNLabel(period)} Transactions`, x, tableWidth, y)
             y -= LINE_HEIGHT + TABLE_HEADER_GAP
             p.top_transactions.slice(0, maxRows).forEach((t) => {
                 const line = `${t.date} ${fmtMoney(t.amount)} ${t.description.slice(0, TRANSACTION_DESC_MAX)}`
@@ -224,15 +228,17 @@ async function renderReportPdf(report: SpendingReport): Promise<Uint8Array> {
         y = tableStartY - tableHeight - SECTION_GAP
     }
 
-    // Center bottom: demeter2.png (centered horizontally, raised off bottom)
-    const IMAGE_BOTTOM_MARGIN = 55
+    // Center bottom: demeter2.png (centered horizontally, at bottom of page)
+    // Asset is 110×170 (w×h); scale to fit within this box in points for consistent size
+    const IMAGE_BOTTOM_MARGIN = 8
+    const LOGO_MAX_WIDTH_PT = 48
+    const LOGO_MAX_HEIGHT_PT = 74
     const pngPath = resolveDemeter2PngPath()
     if (pngPath) {
         try {
             const pngBytes = readFileSync(pngPath)
             const img = await doc.embedPng(pngBytes)
-            const imgMaxSize = 90
-            const scale = Math.min(imgMaxSize / img.width, imgMaxSize / img.height, 1)
+            const scale = Math.min(LOGO_MAX_WIDTH_PT / img.width, LOGO_MAX_HEIGHT_PT / img.height, 1)
             const w = img.width * scale
             const h = img.height * scale
             const imgX = (PAGE_WIDTH - w) / 2

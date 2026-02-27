@@ -8,6 +8,7 @@ WITH
   params AS (
     SELECT
       (SELECT MAX(date) FROM record) AS last_d,
+      CAST((SELECT MAX(date) FROM record) - INTERVAL 6 DAY AS DATE) AS week_start,
       CAST(DATE_TRUNC('month', (SELECT MAX(date) FROM record)) AS DATE) AS month_start
   ),
   -- Normalized merchant: first 24 chars of description, numbers removed, trimmed
@@ -17,6 +18,11 @@ WITH
       TRIM(REGEXP_REPLACE(SUBSTRING(r.description, 1, 24), '[0-9]', '')) AS merchant_key
     FROM record r
     WHERE r.record_type = 'DEBIT' AND r.amount < 0
+  ),
+  -- Recent week: records in the 7 days ending on last_d
+  week_records AS (
+    SELECT * FROM with_merchant, params
+    WHERE date >= params.week_start AND date <= params.last_d
   ),
   -- Recent month: records in the month ending on last_d
   month_records AS (
@@ -28,6 +34,27 @@ WITH
     SELECT * FROM with_merchant, params
     WHERE date > (params.last_d - INTERVAL 1 YEAR) AND date <= params.last_d
   ),
+
+  -- Top categories: recent week (top 4)
+  cat_week AS (
+    SELECT
+      'recent_week' AS period,
+      'top_categories' AS section,
+      ROW_NUMBER() OVER (ORDER BY SUM(-r.amount) DESC) AS rank,
+      t.name AS tag_name,
+      SUM(-r.amount) AS category_spend,
+      NULL::VARCHAR AS merchant,
+      NULL::DOUBLE AS merchant_spend,
+      NULL::VARCHAR AS record_id,
+      NULL::DATE AS record_date,
+      NULL::VARCHAR AS record_description,
+      NULL::DOUBLE AS record_amount
+    FROM week_records r
+    JOIN record_tag rt ON r.id = rt.record_id
+    JOIN tag t ON rt.tag_id = t.id
+    GROUP BY t.name
+  ),
+  top_categories_week AS (SELECT * FROM cat_week WHERE rank <= 4),
 
   -- Top categories: recent month
   cat_month AS (
@@ -114,6 +141,28 @@ WITH
   ),
   top_merchants_month AS (SELECT * FROM merch_month WHERE rank <= 12),
 
+  -- Top merchants: recent week (top 4)
+  merch_week AS (
+    SELECT
+      'recent_week' AS period,
+      'top_merchants' AS section,
+      ROW_NUMBER() OVER (ORDER BY SUM(-m.amount) DESC) AS rank,
+      arg_max(t.name, -m.amount) AS tag_name,
+      NULL::DOUBLE AS category_spend,
+      m.merchant_key AS merchant,
+      SUM(-m.amount) AS merchant_spend,
+      NULL::VARCHAR AS record_id,
+      NULL::DATE AS record_date,
+      NULL::VARCHAR AS record_description,
+      NULL::DOUBLE AS record_amount
+    FROM week_records m
+    JOIN record_tag rt ON m.id = rt.record_id
+    JOIN tag t ON rt.tag_id = t.id
+    WHERE m.merchant_key != ''
+    GROUP BY m.merchant_key
+  ),
+  top_merchants_week AS (SELECT * FROM merch_week WHERE rank <= 4),
+
   -- Top merchants: recent year
   merch_year AS (
     SELECT
@@ -158,6 +207,24 @@ WITH
   ),
   top_merchants_avg AS (SELECT * FROM merch_avg WHERE rank <= 12),
 
+  -- Top transactions: recent week (top 4)
+  tx_week AS (
+    SELECT
+      'recent_week' AS period,
+      'top_transactions' AS section,
+      ROW_NUMBER() OVER (ORDER BY amount) AS rank,
+      NULL::VARCHAR AS tag_name,
+      NULL::DOUBLE AS category_spend,
+      NULL::VARCHAR AS merchant,
+      NULL::DOUBLE AS merchant_spend,
+      id AS record_id,
+      date AS record_date,
+      description AS record_description,
+      amount AS record_amount
+    FROM week_records
+  ),
+  top_transactions_week AS (SELECT * FROM tx_week WHERE rank <= 4),
+
   -- Top 10 transactions: recent month
   tx_month AS (
     SELECT
@@ -192,14 +259,36 @@ WITH
       amount AS record_amount
     FROM year_records
   ),
-  top_transactions_year AS (SELECT * FROM tx_year WHERE rank <= 12)
+  top_transactions_year AS (SELECT * FROM tx_year WHERE rank <= 12),
 
-SELECT * FROM top_categories_month
-UNION ALL SELECT * FROM top_categories_year
-UNION ALL SELECT * FROM top_categories_avg
-UNION ALL SELECT * FROM top_merchants_month
-UNION ALL SELECT * FROM top_merchants_year
-UNION ALL SELECT * FROM top_merchants_avg
-UNION ALL SELECT * FROM top_transactions_month
-UNION ALL SELECT * FROM top_transactions_year
-ORDER BY period, section, rank;
+  -- One row per period with total spend in category_spend
+  period_totals AS (
+    SELECT 'recent_week' AS period, 'period_total' AS section, 0 AS rank,
+      NULL::VARCHAR AS tag_name, COALESCE(SUM(-amount), 0)::DOUBLE AS category_spend,
+      NULL::VARCHAR AS merchant, NULL::DOUBLE AS merchant_spend,
+      NULL::VARCHAR AS record_id, NULL::DATE AS record_date, NULL::VARCHAR AS record_description, NULL::DOUBLE AS record_amount
+    FROM week_records
+    UNION ALL
+    SELECT 'recent_month', 'period_total', 0, NULL, COALESCE(SUM(-amount), 0)::DOUBLE, NULL, NULL, NULL, NULL, NULL, NULL FROM month_records
+    UNION ALL
+    SELECT 'avg_monthly', 'period_total', 0, NULL, (COALESCE(SUM(-amount), 0) / 12.0)::DOUBLE, NULL, NULL, NULL, NULL, NULL, NULL FROM year_records
+    UNION ALL
+    SELECT 'recent_year', 'period_total', 0, NULL, COALESCE(SUM(-amount), 0)::DOUBLE, NULL, NULL, NULL, NULL, NULL, NULL FROM year_records
+  ),
+
+  all_rows AS (
+    SELECT * FROM top_categories_week
+    UNION ALL SELECT * FROM top_categories_month
+    UNION ALL SELECT * FROM top_categories_year
+    UNION ALL SELECT * FROM top_categories_avg
+    UNION ALL SELECT * FROM top_merchants_week
+    UNION ALL SELECT * FROM top_merchants_month
+    UNION ALL SELECT * FROM top_merchants_year
+    UNION ALL SELECT * FROM top_merchants_avg
+    UNION ALL SELECT * FROM top_transactions_week
+    UNION ALL SELECT * FROM top_transactions_month
+    UNION ALL SELECT * FROM top_transactions_year
+    UNION ALL SELECT * FROM period_totals
+  )
+SELECT * FROM all_rows
+ORDER BY CASE period WHEN 'recent_week' THEN 0 WHEN 'recent_month' THEN 1 WHEN 'avg_monthly' THEN 2 WHEN 'recent_year' THEN 3 END, section, rank;

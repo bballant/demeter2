@@ -9,7 +9,7 @@ import type {
     SpendingReport,
 } from "../db/model.js"
 
-const PERIODS: ReportPeriod[] = ["recent_month", "avg_monthly", "recent_year"]
+const PERIODS: ReportPeriod[] = ["recent_week", "recent_month", "avg_monthly", "recent_year"]
 const SECTIONS: ReportSection[] = [
     "top_categories",
     "top_transactions",
@@ -55,6 +55,7 @@ export function buildReportFromRows(
 ): SpendingReport {
     const last = lastDate.slice(0, 10) // YYYY-MM-DD
     const [y, m] = last.split("-").map(Number)
+    const recent_week_label = `Week ending ${last}`
     const recent_month_label = `${y}-${String(m).padStart(2, "0")}`
     const recent_year_label = `Year ending ${last}`
 
@@ -73,14 +74,21 @@ export function buildReportFromRows(
     })
 
     const report: SpendingReport = {
+        recent_week_label,
         recent_month_label,
         recent_year_label,
+        periodTotals: {},
         periods: {
+            recent_week: emptyPeriod(),
             recent_month: emptyPeriod(),
             avg_monthly: emptyPeriod(),
             recent_year: emptyPeriod(),
         },
     }
+
+    rows.filter((r) => r.section === "period_total").forEach((r) => {
+        if (r.category_spend != null) report.periodTotals[r.period] = r.category_spend
+    })
 
     for (const period of PERIODS) {
         const periodRows = rows.filter(byPeriod(period))
@@ -155,18 +163,23 @@ export function formatReport(report: SpendingReport): string {
     }
 
     const periodTitles: Record<ReportPeriod, string> = {
+        recent_week: `Recent week (${report.recent_week_label})`,
         recent_month: `Recent month (${report.recent_month_label})`,
         avg_monthly: "Avg monthly (over year)",
         recent_year: `Recent year (${report.recent_year_label})`,
     }
 
+    const totalSpend = (period: ReportPeriod) => fmtMoney(report.periodTotals?.[period] ?? 0)
+    const topN = (period: ReportPeriod) => (period === "recent_week" ? 4 : 12)
+
     for (const period of PERIODS) {
         const p = report.periods[period]
+        const n = topN(period)
         lines.push("")
         lines.push("")
-        lines.push(`========== ${periodTitles[period]} ==========`)
+        lines.push(`========== ${periodTitles[period]}, Total Spend ${totalSpend(period)} ==========`)
 
-        section("Top 12 categories by spend", () => {
+        section(`Top ${n} categories by spend`, () => {
             if (p.top_categories.length === 0) lines.push("(none)")
             else
                 p.top_categories.forEach((c, i) =>
@@ -175,7 +188,7 @@ export function formatReport(report: SpendingReport): string {
         })
 
         if (period !== "avg_monthly") {
-            section("Top 12 transactions by spend", () => {
+            section(`Top ${n} transactions by spend`, () => {
                 if (p.top_transactions.length === 0) lines.push("(none)")
                 else
                     p.top_transactions.forEach((t, i) =>
@@ -186,7 +199,7 @@ export function formatReport(report: SpendingReport): string {
             })
         }
 
-        section("Top 12 merchants by spend", () => {
+        section(`Top ${n} merchants by spend`, () => {
             if (p.top_merchants.length === 0) lines.push("(none)")
             else
                 p.top_merchants.forEach((m, i) => {
