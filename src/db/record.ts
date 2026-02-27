@@ -15,9 +15,9 @@ export const runMigrations = Effect.gen(function* () {
     yield* db.executeSQLFile(migrationsPath)
 })
 
-export const insertRecords = (records: StatementRecord[]): Effect.Effect<void, DatabaseError, DuckDb> =>
+/** Insert records without running migrations (caller must ensure schema exists). */
+export const insertRecordsOnly = (records: StatementRecord[]): Effect.Effect<void, DatabaseError, DuckDb> =>
     Effect.gen(function* () {
-        yield* runMigrations
         const db = yield* DuckDb
         for (const record of records) {
             yield* db.execute(INSERT_SQL, [
@@ -29,4 +29,10 @@ export const insertRecords = (records: StatementRecord[]): Effect.Effect<void, D
                 record.source_file,
             ])
         }
+    })
+
+export const insertRecords = (records: StatementRecord[]): Effect.Effect<void, DatabaseError, DuckDb> =>
+    Effect.gen(function* () {
+        yield* runMigrations
+        yield* insertRecordsOnly(records)
     })

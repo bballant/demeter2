@@ -2,11 +2,12 @@ import { Args, Command, Options } from "@effect/cli"
 import { Console, Effect } from "effect"
 import { parse } from "csv-parse/sync"
 import { mkdirSync, readFileSync } from "node:fs"
-import { basename, dirname, resolve } from "node:path"
+import { basename, dirname, join, resolve } from "node:path"
+import { fileURLToPath } from "node:url"
 
-import { insertRecords } from "../db/record.js"
+import { insertRecords, insertRecordsOnly } from "../db/record.js"
 import type { StatementRecord } from "../db/model.js"
-import { makeDuckDbLayer } from "../db/DuckDb.js"
+import { makeDuckDbLayer, DuckDb } from "../db/DuckDb.js"
 import { DEFAULT_DB_PATH } from "../main/shared.js"
 
 /**
@@ -58,6 +59,12 @@ const dbOption = Options.text("db").pipe(
     Options.withDescription(`Path to database file (default: ${DEFAULT_DB_PATH})`),
 )
 
+/** Paths to SQL files next to the built command (dist/sql/). */
+const sqlDir = join(fileURLToPath(import.meta.url), "..", "..", "sql")
+const migrationsDownPath = join(sqlDir, "migrations-down.sql")
+const migrationsUpPath = join(sqlDir, "migrations-up.sql")
+const seedTagsPath = join(sqlDir, "seed-tags.sql")
+
 const fileArg = Args.file({ name: "file", exists: "yes" })
 
 const ingestFile = Command.make(
@@ -84,6 +91,41 @@ const ingestFile = Command.make(
         }).pipe(Effect.provide(makeDuckDbLayer(db))),
 )
 
+const refresh = Command.make(
+    "refresh",
+    { file: fileArg, db: dbOption },
+    ({ file, db }) =>
+        Effect.gen(function* () {
+            mkdirSync(dirname(db), { recursive: true })
+            const duckDb = yield* DuckDb
+
+            yield* Console.log("Running migrations-down...")
+            yield* duckDb.executeSQLFile(migrationsDownPath)
+            yield* Console.log("Running migrations-up...")
+            yield* duckDb.executeSQLFile(migrationsUpPath)
+
+            const csvPath = resolve(file)
+            const sourceFile = basename(csvPath)
+            const raw = readFileSync(csvPath, "utf8")
+            const rows = parse(raw, { columns: true, skip_empty_lines: true, trim: true }) as Record<string, string>[]
+            const records: StatementRecord[] = []
+            for (const row of rows) {
+                const record = mapRowToRecord(row, sourceFile)
+                if (record) records.push(record)
+            }
+            if (records.length === 0) {
+                yield* Console.log("No records to ingest (or no rows matched the column mapping)")
+                return
+            }
+            yield* insertRecordsOnly(records)
+            yield* Console.log(`Ingested ${records.length} record(s) from ${sourceFile}`)
+
+            yield* Console.log("Running seed-tags...")
+            yield* duckDb.executeSQLFile(seedTagsPath)
+            yield* Console.log("Refresh complete.")
+        }).pipe(Effect.provide(makeDuckDbLayer(db))),
+)
+
 export const recordCmd = Command.make("record").pipe(
-    Command.withSubcommands([ingestFile]),
+    Command.withSubcommands([ingestFile, refresh]),
 )

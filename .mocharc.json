@@ -1,0 +1,6 @@
+{
+    "extension": ["js", "cjs", "mjs", "ts"],
+    "node-option": ["loader=ts-node/esm", "no-warnings=ExperimentalWarning"],
+    "spec": ["test/**/*.test.ts"],
+    "forbid-only": true
+}

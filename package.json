@@ -51,7 +51,7 @@
         "lint": "eslint",
         "posttest": "npm run lint",
         "start": "node dist/index.js",
-        "test": "mocha --forbid-only \"test/**/*.test.ts\""
+        "test": "mocha"
     },
     "types": "dist/index.d.ts"
 }
