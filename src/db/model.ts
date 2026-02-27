@@ -27,13 +27,14 @@ export type TaggedRecord = StatementRecord & { tags: string[] }
 // -----------------------------------------------------------------------------
 
 /** Time period for report sections. All are relative to last date in record. */
-export type ReportPeriod = "recent_month" | "avg_monthly" | "recent_year"
+export type ReportPeriod = "recent_week" | "recent_month" | "avg_monthly" | "recent_year"
 
-/** Section of the report; each has a fixed rank size of 12. */
+/** Section of the report; each has a fixed rank size of 12. period_total carries total spend in category_spend. */
 export type ReportSection =
     | "top_categories"
     | "top_transactions"
     | "top_merchants"
+    | "period_total"
 
 /** One row from the unified report query. Exactly one of the section-specific fields is set per row. */
 export type ReportRow = {
@@ -58,10 +59,14 @@ export type ReportRow = {
 
 /** Structured report: one object per period with arrays for each section. */
 export type SpendingReport = {
+    /** Week ending on last day of data (e.g. "Week ending YYYY-MM-DD"). */
+    recent_week_label: string
     /** Month ending on last day of data (YYYY-MM). */
     recent_month_label: string
     /** Year ending on last day of data (e.g. "2025–2026" or "FY ending YYYY-MM-DD"). */
     recent_year_label: string
+    /** Total spend per period (sum of DEBIT amounts as positive). */
+    periodTotals: Partial<Record<ReportPeriod, number>>
     periods: {
         [K in ReportPeriod]: {
             top_categories: Array<{ tag_name: string; spend: number }>

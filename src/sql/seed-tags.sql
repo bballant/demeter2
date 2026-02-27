@@ -20,7 +20,8 @@ INSERT INTO tag (id, name) VALUES
   (11, 'Home'),
   (12, 'Entertainment'),
   (13, 'Uncategorized'),
-  (14, 'Charity');
+  (14, 'Charity'),
+  (15, 'Work');
 
 -- Tag each record by first matching category (order matters)
 INSERT INTO record_tag (record_id, tag_id)
@@ -137,7 +138,10 @@ SELECT
       OR UPPER(r.description) LIKE '%RUSSO BROS%' OR UPPER(r.description) LIKE '%SQ *MILLSTONE LAWN%'
       OR UPPER(r.description) LIKE '%PP*COMMUNITYPASS%' OR UPPER(r.description) LIKE '%PP*SOUTH ORANGE MAPLEW%'
       OR UPPER(r.description) LIKE '%NYX*%ELECTRI%' OR UPPER(r.description) LIKE '%FRIGIDAIRE.COM%'
-      OR UPPER(r.description) LIKE '%PAYPAL *ELECTROLUX%' THEN 11
+      OR UPPER(r.description) LIKE '%PAYPAL *ELECTROLUX%'
+      OR UPPER(r.description) LIKE '%INTUIT *TURBOTAX%' OR UPPER(r.description) LIKE '%IKEA%' THEN 11
+    -- Work (coworking, etc.)
+    WHEN UPPER(r.description) LIKE '%MAPLEWOOD COWORK%' THEN 15
     -- Shopping (retail, pharmacy, Amazon non-subscription)
     WHEN UPPER(r.description) LIKE '%AMAZON%' OR UPPER(r.description) LIKE '%AMAZON MKTPL%'
       OR UPPER(r.description) LIKE '%AMAZON DIGI%' THEN 10
@@ -149,9 +153,10 @@ SELECT
       OR UPPER(r.description) LIKE '%BESTBUY%' OR UPPER(r.description) LIKE '%BEST BUY%'
       OR UPPER(r.description) LIKE '%PATAGONIA%' OR UPPER(r.description) LIKE '%ETSY%'
       OR UPPER(r.description) LIKE '%ANTHROPOLOGIE%' OR UPPER(r.description) LIKE '%MADEWELL%'
-      OR UPPER(r.description) LIKE '%IKEA%' OR UPPER(r.description) LIKE '%DSW %'
+      OR UPPER(r.description) LIKE '%DSW %'
       OR UPPER(r.description) LIKE '%OLD NAVY%' OR UPPER(r.description) LIKE '%LENOVO%'
-      OR UPPER(r.description) LIKE '%WALMART%' OR UPPER(r.description) LIKE '%MAPLEWOOD COWORK%'
+      OR UPPER(r.description) LIKE '%WALMART%'
+      OR UPPER(r.description) LIKE '%SP ROWAN INC%' OR UPPER(r.description) LIKE '%ROWAN INC%'
       OR UPPER(r.description) LIKE '%PAYPAL *EBAY%' OR UPPER(r.description) LIKE '%PAYPAL *THRIFTBOOKS%'
       OR UPPER(r.description) LIKE '%PAYPAL *MOFT%' OR UPPER(r.description) LIKE '%MFTKNITWEAR%'
       OR UPPER(r.description) LIKE '%NEEDLESKEIN%' OR UPPER(r.description) LIKE '%MOMA DESIGN STORE%'
@@ -178,7 +183,7 @@ SELECT
       OR UPPER(r.description) LIKE '%LUMIE SALON%' OR UPPER(r.description) LIKE '%LEO NAILS%'
       OR UPPER(r.description) LIKE '%HAPWARDS TENNIS%' OR UPPER(r.description) LIKE '%EVERYTHING BUT WATER%'
       OR UPPER(r.description) LIKE '%STONY HILL GARDENS%' OR UPPER(r.description) LIKE '%PAYPAL *REPLACEMENT%'
-      OR UPPER(r.description) LIKE '%INTUIT *TURBOTAX%' OR UPPER(r.description) LIKE '%TKO VAPE%'
+      OR UPPER(r.description) LIKE '%TKO VAPE%'
       OR UPPER(r.description) LIKE '%YARNLIVING%' THEN 10
     -- Entertainment (games, music lessons, kids activities)
     WHEN UPPER(r.description) LIKE '%STEAM GAMES%' OR UPPER(r.description) LIKE '%NINTENDO%'
@@ -188,7 +193,7 @@ SELECT
       OR UPPER(r.description) LIKE '%VARSITY YEARBOOK%' OR UPPER(r.description) LIKE '%GOTHAM FC%'
       OR UPPER(r.description) LIKE '%NYCOMICCON%' OR UPPER(r.description) LIKE '%THIRTEEN %'
       OR UPPER(r.description) LIKE '%BAZAAR TRADER GAMES%' OR UPPER(r.description) LIKE '%JERRYS ARTIST%'
-      OR UPPER(r.description) LIKE '%VILLAGE ICE CREAM%' OR UPPER(r.description) LIKE '%ROWAN INC%'
+      OR UPPER(r.description) LIKE '%VILLAGE ICE CREAM%'
       OR UPPER(r.description) LIKE '%RULFS ORCHARD%' OR UPPER(r.description) LIKE '%LORS SCHOOL PORTRAITS%'
       OR UPPER(r.description) LIKE '%SP THE KILLERS%' OR UPPER(r.description) LIKE '%TOP GOLF%'
       OR UPPER(r.description) LIKE '%SHAKESPEARE THEATR%' OR UPPER(r.description) LIKE '%MONTCLAIR FILM FEST%'
