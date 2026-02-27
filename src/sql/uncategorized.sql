@@ -1,8 +1,8 @@
--- List descriptions currently tagged as Uncategorized (tag_id = 13).
--- Run after seed-tags.sql: demeter2 db query path/to/uncategorized.sql
-SELECT description, COUNT(*) AS cnt
+-- List records tagged as Uncategorized (no description pattern matched).
+-- Run after seed-tags (e.g. demeter2 db execute seed-tags.sql or as part of refresh).
+-- Usage: demeter2 db query uncategorized.sql
+SELECT r.id, r.date, r.record_type, r.amount, r.description, r.source_file
 FROM record r
 JOIN record_tag rt ON rt.record_id = r.id
 WHERE rt.tag_id = 13
-GROUP BY description
-ORDER BY cnt DESC, description;
+ORDER BY r.description;
