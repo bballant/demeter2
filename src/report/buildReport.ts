@@ -54,9 +54,8 @@ export function buildReportFromRows(
     lastDate: string,
 ): SpendingReport {
     const last = lastDate.slice(0, 10) // YYYY-MM-DD
-    const [y, m] = last.split("-").map(Number)
-    const recent_week_label = `Week ending ${last}`
-    const recent_month_label = `${y}-${String(m).padStart(2, "0")}`
+    const recent_week_label = `Last 7 days (through ${last})`
+    const recent_month_label = `Last 30 days (through ${last})`
     const recent_year_label = `Year ending ${last}`
 
     const byPeriod = (period: ReportPeriod) => (r: ReportRow) => r.period === period

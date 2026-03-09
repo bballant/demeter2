@@ -5,11 +5,12 @@
 -- Run with: demeter2 db query path/to/report.sql
 
 WITH
+  -- last_d = latest record date. Rolling windows: last 7 days and last 30 days (timespans, not calendar).
   params AS (
     SELECT
       (SELECT MAX(date) FROM record) AS last_d,
       CAST((SELECT MAX(date) FROM record) - INTERVAL 6 DAY AS DATE) AS week_start,
-      CAST(DATE_TRUNC('month', (SELECT MAX(date) FROM record)) AS DATE) AS month_start
+      CAST((SELECT MAX(date) FROM record) - INTERVAL 29 DAY AS DATE) AS month_start
   ),
   -- Normalized merchant: first 24 chars of description, numbers removed, trimmed
   with_merchant AS (
@@ -19,12 +20,12 @@ WITH
     FROM record r
     WHERE r.record_type = 'DEBIT' AND r.amount < 0
   ),
-  -- Recent week: records in the 7 days ending on last_d
+  -- Recent week: last 7 days of data (through last_d)
   week_records AS (
     SELECT * FROM with_merchant, params
     WHERE date >= params.week_start AND date <= params.last_d
   ),
-  -- Recent month: records in the month ending on last_d
+  -- Recent month: last 30 days of data (through last_d)
   month_records AS (
     SELECT * FROM with_merchant, params
     WHERE date >= params.month_start AND date <= params.last_d
